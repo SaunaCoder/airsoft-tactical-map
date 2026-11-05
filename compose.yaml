@@ -1,0 +1,11 @@
+# ponytail: MongoDB only for now; app services + nginx land with the deployment task (P0-9).
+services:
+  mongo:
+    image: mongo:8
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
