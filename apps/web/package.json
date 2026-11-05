@@ -2,6 +2,10 @@
   "name": "@airsoft/web",
   "private": true,
   "type": "module",
+  "imports": {
+    "#lib": "./src/lib",
+    "#lib/*": "./src/lib/*"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",

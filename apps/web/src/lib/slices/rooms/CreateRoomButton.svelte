@@ -1,0 +1,35 @@
+<script lang="ts">
+  import { goto } from '$app/navigation';
+  import { resolve } from '$app/paths';
+  import { createRoom } from './rooms.api.ts';
+  import { saveLeaderToken } from './rooms.storage.ts';
+
+  let busy = $state(false);
+  let error = $state('');
+
+  async function create() {
+    busy = true;
+    error = '';
+    try {
+      const { code, leaderToken } = await createRoom();
+      saveLeaderToken(code, leaderToken);
+      await goto(resolve('/room/[code]', { code }));
+    } catch {
+      error = 'Could not create a room. Check your connection and try again.';
+    } finally {
+      busy = false;
+    }
+  }
+</script>
+
+<button
+  type="button"
+  class="min-h-14 w-full rounded-xl bg-amber-400 px-6 text-lg font-bold text-neutral-950 active:bg-amber-500 disabled:opacity-60"
+  disabled={busy}
+  onclick={create}
+>
+  {busy ? 'Creating...' : 'Create room'}
+</button>
+{#if error}
+  <p role="alert" class="text-red-400">{error}</p>
+{/if}

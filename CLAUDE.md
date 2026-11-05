@@ -266,6 +266,7 @@ docker compose up   # full stack locally (currently MongoDB only; app services c
 - **Node 24+.** The server and `packages/shared` run on Node's native TypeScript type stripping: no build step, no `tsx`. Consequences: relative imports use the `.ts` extension, and only erasable syntax is allowed (no `enum`, `namespace`, parameter properties). `tsconfig.base.json` enforces this.
 - `packages/shared` is consumed as TypeScript source (`exports` points at `src/index.ts`); Vite and Node both load it directly.
 - **SvelteKit 3:** there is no `svelte.config.js`. Kit options are passed to `sveltekit({...})` in `apps/web/vite.config.ts`, and `tsconfig.json` extends `$app/tsconfig`.
+- **No `$lib` alias in SvelteKit 3:** use the `#lib` subpath import from `apps/web/package.json` `imports`, with the full file path (`#lib/slices/rooms/index.ts`). Subpath imports don't resolve directory indexes.
 - **TypeScript is pinned to 6.0.x**: typescript-eslint, svelte-check and SvelteKit don't support TS 7 yet.
 - In dev, Vite proxies `/api` and `/socket.io` to the server on port 3000, so the web app always talks same-origin (as it will behind nginx).
 
