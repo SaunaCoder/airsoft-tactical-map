@@ -10,6 +10,8 @@ export default defineConfig(
   ts.configs.recommended,
   svelte.configs.recommended,
   { languageOptions: { globals: { ...globals.browser, ...globals.node } } },
+  // Express error handlers need the 4-arg signature even when `next` is unused.
+  { rules: { '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }] } },
   {
     files: ['**/*.svelte', '**/*.svelte.ts'],
     languageOptions: { parserOptions: { parser: ts.parser, extraFileExtensions: ['.svelte'] } },

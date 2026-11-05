@@ -1,14 +1,24 @@
 // ponytail: runs on Node's native TypeScript type stripping (Node 24+), no build step.
 // Requires erasable-only syntax and explicit .ts import extensions (enforced by tsconfig).
-import express from 'express';
+import express, { type ErrorRequestHandler } from 'express';
 import mongoose from 'mongoose';
 import { config } from './core/config.ts';
+import { roomsRouter } from './slices/rooms/index.ts';
 
 const app = express();
 
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, db: mongoose.connection.readyState === 1 });
 });
+
+app.use('/api/rooms', roomsRouter);
+
+// JSON instead of Express's default HTML page; never leak internals to the client.
+const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
+  console.error(err);
+  res.status(500).json({ error: 'Internal server error' });
+};
+app.use(errorHandler);
 
 await mongoose.connect(config.MONGO_URL, { serverSelectionTimeoutMS: 5000 });
 
