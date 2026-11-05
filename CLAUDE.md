@@ -1,0 +1,272 @@
+# CLAUDE.md - Airsoft Tactical Map
+
+Instructions for Claude Code working in this repository. Read this file fully before starting any task.
+
+## Project
+
+A real-time tactical map for an airsoft team. The leader creates a room, players join by code or QR, everyone sees each other's live positions, and the leader draws the game plan on the map. Zones and points of interest can be prepared as a template before the game.
+
+This is a portfolio project. Code quality, clear architecture, tests and a good README matter as much as features.
+
+## Git workflow (mandatory)
+
+- **Never commit to `main`. Never push to `main`. Never merge into `main`.** No exceptions, even for one-line fixes.
+- **Before writing any code**, create a branch:
+  ```bash
+  git checkout main
+  git pull
+  git checkout -b <type>/<short-descriptive-name>
+  ```
+- If you are already on a non-`main` branch that matches the current task, keep working on it. If the task is unrelated to the current branch, create a new one from `main`.
+- Branch types:
+  | Prefix | Use for |
+  |---|---|
+  | `bug/` | Bug fix |
+  | `feature/` | New feature |
+  | `doc/` | Documentation only |
+  | `update/` | Change or improvement to an existing feature |
+- Branch name: lowercase kebab-case, 2-5 words, the most suitable name for what the branch does. Examples: `feature/leader-drawing-tools`, `feature/join-room-by-qr`, `bug/reconnect-loses-room-state`, `update/gps-throttling-interval`, `doc/readme-architecture-diagram`.
+- Commit in small logical steps with clear imperative messages (`Add room join code generator`, `Validate feature:add payload with Zod`).
+- You may push the working branch (`git push -u origin <branch>`). Opening and merging PRs is done by a human.
+
+## PR description (mandatory after finishing code)
+
+When the code for a task is done and tests pass, output a PR description inside a single fenced block so it can be copied in one click. Use a four-backtick fence (````markdown) so code blocks inside the PR text don't break it.
+
+Template:
+
+````markdown
+## <PR title>
+
+**Branch:** `<type>/<name>` -> `main`
+**Requirement:** <e.g. P0-4 Leader drawing tools>
+
+### Summary
+<1-3 sentences: what this PR does and why>
+
+### Changes
+- <change, grouped by slice: shared / server / web / infra>
+- ...
+
+### How to test
+1. <step>
+2. <step>
+Expected: <result>
+
+### Tests
+- <unit/e2e tests added or updated>
+
+### Notes
+<trade-offs, follow-ups, known limitations, or "None">
+````
+
+## Tech stack
+
+- **Frontend:** SvelteKit, TypeScript, Tailwind CSS
+- **Map:** Leaflet + OpenStreetMap tiles, Leaflet-Geoman for drawing tools
+- **Backend:** Node.js, Express, TypeScript
+- **Real-time:** Socket.IO (WebSocket)
+- **Database:** MongoDB (Mongoose)
+- **Validation:** Zod, shared between frontend and backend
+- **Data format:** GeoJSON for all map features
+- **Testing:** Vitest (unit), Playwright (end-to-end)
+- **Infrastructure:** Docker + Docker Compose, nginx with HTTPS, Hetzner server
+
+Do not add frameworks or libraries outside this list without asking first.
+
+## Architecture: monorepo + vertical slices
+
+pnpm workspaces monorepo. Code is organized **by feature (slice), not by technical layer**. Each slice owns everything it needs: schemas, server handlers, persistence, UI and tests.
+
+```
+airsoft-team-map/
+├── apps/
+│   ├── server/                     # Express + Socket.IO
+│   │   └── src/
+│   │       ├── core/               # bootstrap, config, db connection, socket server,
+│   │       │                       # error handling, auth helpers (leader token)
+│   │       ├── slices/
+│   │       │   ├── rooms/          # create room, join code, leader token, room state, expiry
+│   │       │   ├── presence/       # join/leave, positions, member list, last seen
+│   │       │   ├── drawings/       # feature add/update/delete, undo, clear
+│   │       │   └── templates/      # template CRUD, load template into room
+│   │       └── main.ts
+│   └── web/                        # SvelteKit
+│       └── src/
+│           ├── lib/
+│           │   ├── core/           # socket client, map setup, geolocation, UI primitives
+│           │   └── slices/
+│           │       ├── rooms/
+│           │       ├── presence/
+│           │       ├── drawings/
+│           │       └── templates/
+│           └── routes/             # thin pages that compose slices
+├── packages/
+│   └── shared/                     # Zod schemas + inferred types + event names
+│       └── src/
+│           ├── geojson/
+│           ├── rooms/
+│           ├── presence/
+│           ├── drawings/
+│           └── templates/
+├── e2e/                            # Playwright tests
+├── infra/                          # Dockerfiles, docker-compose, nginx config
+└── .github/workflows/              # CI
+```
+
+A typical server slice:
+
+```
+slices/drawings/
+├── drawings.schema.ts      # re-exports from @shared or slice-local Mongoose schema
+├── drawings.service.ts     # business logic, pure where possible
+├── drawings.socket.ts      # socket event handlers for this slice
+├── drawings.routes.ts      # REST routes (if any)
+├── drawings.service.test.ts
+└── index.ts                # public API of the slice
+```
+
+Rules:
+- A slice imports another slice **only through its `index.ts`**. Never reach into another slice's internals.
+- Code goes into `core/` only when it is genuinely used by 2+ slices. Do not create generic `utils/` dumping grounds.
+- Routes/pages in `apps/web/src/routes` stay thin: they compose slice components and stores.
+- All Zod schemas for socket payloads and API bodies live in `packages/shared` and are imported by both apps. Types come from `z.infer`, never hand-written duplicates.
+- Business logic (permission checks, code generation, undo stack, throttling math) is kept in pure functions so it can be unit tested without sockets or a database.
+
+## Core rules
+
+- **Server is the source of truth.** Permissions are enforced on the server. UI hiding of leader tools is cosmetic only.
+- **Validate everything incoming.** Every socket event and every API request is parsed with its Zod schema before use. Invalid payload -> emit `error` to that client, do not crash, do not broadcast.
+- **GeoJSON everywhere.** All map features are GeoJSON `Feature`s inside a `FeatureCollection`. Coordinates are `[lng, lat]` (GeoJSON order), not Leaflet's `[lat, lng]`. Convert only at the Leaflet boundary.
+- **Leader token:** generated with a cryptographically secure RNG, returned once to the leader, stored on the leader's device (localStorage). The server stores only its hash (`leaderTokenHash`) and compares with a timing-safe comparison.
+- **Join codes:** 6 characters, uppercase, without ambiguous characters (no `0/O`, `1/I/L`). Check for collisions with active rooms.
+- **No accounts.** Players are identified per room by a generated member id + display name.
+- **Mobile-first.** Design for a phone used one-handed outdoors: full-screen map, large touch targets (min 48px), minimal menus, high contrast.
+- TypeScript `strict` mode everywhere. No `any` unless justified in a comment.
+- Use hyphens (-), not em dashes, in docs and UI text.
+
+## Requirements
+
+Work in priority order. Do not start P1 items until all P0 items are done, unless explicitly asked.
+
+### P0 - Must have (MVP)
+
+1. **Create a room.** Anyone can create a room and becomes its leader. The room gets a short random join code (6 characters) and a leader token stored on the leader's device.
+2. **Join a room.** Players join by entering the code or scanning a QR code. A player only needs a display name, no account.
+3. **Live positions.** Each member shares their GPS position through the browser Geolocation API. All members see everyone on the map in real time, with name labels.
+4. **Leader drawing tools.** The leader can add markers, draw lines/arrows and polygons (zones), and delete them. Changes are broadcast to all members instantly.
+5. **Roles.** Only the leader can draw or edit. Members have view-only access to drawings. The server enforces this, not just the UI.
+6. **Templates.** The leader can prepare a template before the game: outline the game zone, add points of interest, save it, and later load it into a room.
+7. **Persistence.** Rooms and templates are stored in MongoDB. A player who reconnects gets the current room state.
+8. **Mobile-first UI.** Works one-handed on a phone in the field: large buttons, a full-screen map, minimal menus.
+9. **HTTPS deployment.** Deployed with Docker on Hetzner behind nginx with HTTPS. Browsers require HTTPS for geolocation.
+10. **Validation and failure handling.** All incoming socket events and API requests are validated with Zod. Handle lost connection (auto-reconnect, visible "offline" state) and denied or unavailable GPS.
+11. **Tests.** Unit tests for room and permission logic. At least two Playwright end-to-end tests: "leader adds a marker, player sees it" and "player joins by code".
+12. **README.** Problem, features, architecture diagram, data flow (who sends what, through which event), how to run locally.
+
+### P1 - Should have
+
+1. **GPS smoothing and throttling.** Send positions at a sensible interval (every 3-5 seconds or after meaningful movement) and smooth jumpy readings.
+2. **Member list.** Shows who's in the room, with a "last seen" time, so the leader notices when someone drops out.
+3. **Undo and clear.** The leader can undo the last change or clear all drawings.
+4. **Room expiry.** Inactive rooms expire automatically (MongoDB TTL index on `expiresAt`).
+5. **CI.** GitHub Actions runs linting and tests on every push.
+6. **GraphQL API for templates.** Create, read, update and delete templates through GraphQL instead of REST. Build P0 templates over REST behind a service layer so this swap only replaces the transport.
+
+### P2 - Nice to have
+
+1. **Monitoring.** Prometheus metrics (active rooms, connected members, events per second) with a Grafana dashboard.
+2. **MapLibre GL** as an alternative map engine. Keep map code behind a thin adapter in `web/src/lib/core` so this is possible.
+3. **Offline map tiles** for areas with weak signal.
+4. **Export and import templates** as GeoJSON files.
+5. **Teams inside a room** (e.g. color groups).
+
+### Out of scope
+
+Do not build these, even partially:
+- User accounts and passwords
+- Chat or voice
+- Native mobile apps
+
+## Data model (draft)
+
+```ts
+Room {
+  code: string                 // 6 chars, unique among active rooms
+  leaderTokenHash: string
+  members: [{ id, name, lastPosition, lastSeen }]
+  features: GeoJSON.FeatureCollection
+  createdAt: Date
+  expiresAt: Date              // TTL index (P1)
+}
+
+Template {
+  name: string
+  ownerKey: string
+  center: [lng, lat]
+  zoom: number
+  features: GeoJSON.FeatureCollection
+  createdAt: Date
+}
+```
+
+The model is a draft. If a change is needed, update this section in the same PR.
+
+## Socket events (draft)
+
+| Direction | Event | Notes |
+|---|---|---|
+| Client -> Server | `room:join` | code, name, optional leader token, optional member id (reconnect) |
+| Client -> Server | `position:update` | throttled GPS position |
+| Client -> Server | `feature:add` | leader only |
+| Client -> Server | `feature:update` | leader only |
+| Client -> Server | `feature:delete` | leader only |
+| Client -> Server | `template:load` | leader only, loads template features into the room |
+| Server -> Client | `room:state` | full snapshot, sent on join and reconnect |
+| Server -> Client | `member:joined` | |
+| Server -> Client | `member:left` | |
+| Server -> Client | `position:updated` | |
+| Server -> Client | `feature:added` | |
+| Server -> Client | `feature:updated` | |
+| Server -> Client | `feature:deleted` | |
+| Server -> Client | `error` | sent only to the offending client |
+
+Event names and payload schemas are defined once in `packages/shared` and used by both apps. Never hardcode event name strings in app code.
+
+## Testing
+
+- **Vitest** for unit tests, colocated with the code (`*.test.ts`). Required for: join code generation, leader token check, permission checks per event, room state on reconnect, undo stack, GPS throttling/smoothing.
+- **Playwright** for e2e in `e2e/`. Use two browser contexts for multi-user flows and mock geolocation via Playwright's geolocation permission + coordinates.
+- Every bug fix (`bug/` branch) comes with a test that fails before the fix.
+- Run lint, typecheck and tests before writing the PR description. Do not claim tests pass without running them.
+
+## Commands
+
+Expected root scripts (create them when scaffolding, keep this list in sync):
+
+```bash
+pnpm install
+pnpm dev            # web + server in watch mode, MongoDB via docker compose
+pnpm lint
+pnpm typecheck
+pnpm test           # Vitest across workspaces
+pnpm test:e2e       # Playwright
+pnpm build
+docker compose up   # full stack locally
+```
+
+## Local development notes
+
+- `localhost` is a secure context, so geolocation works on desktop without HTTPS.
+- Testing on a real phone needs HTTPS (e.g. a tunnel or a local cert). Document the chosen approach in the README.
+- Secrets and connection strings go in `.env` (git-ignored). Keep `.env.example` up to date.
+
+## Definition of done
+
+A task is done when:
+1. Work is on a correctly named branch, not `main`.
+2. Code follows the vertical slice structure and shared Zod schemas.
+3. Server-side validation and permission checks are in place for any new event or endpoint.
+4. Tests are added/updated and lint, typecheck and tests pass.
+5. README or this file is updated if behavior, events, data model or commands changed.
+6. A copyable PR description is printed using the template above.
