@@ -110,7 +110,8 @@ airsoft-team-map/
 │           ├── drawings/
 │           └── templates/
 ├── e2e/                            # Playwright tests
-├── infra/                          # Dockerfiles, docker-compose, nginx config
+├── infra/                          # Dockerfiles, nginx config
+├── compose.yaml                    # docker compose (root, so `docker compose up` works from repo root)
 └── .github/workflows/              # CI
 ```
 
@@ -252,14 +253,21 @@ pnpm typecheck
 pnpm test           # Vitest across workspaces
 pnpm test:e2e       # Playwright
 pnpm build
-docker compose up   # full stack locally
+docker compose up   # full stack locally (currently MongoDB only; app services come with P0-9)
 ```
+
+`pnpm` comes from corepack (version pinned in root `package.json` `packageManager`). If `corepack enable` fails with EPERM on Windows, use `corepack enable --install-directory "%APPDATA%\npm" pnpm`.
 
 ## Local development notes
 
 - `localhost` is a secure context, so geolocation works on desktop without HTTPS.
 - Testing on a real phone needs HTTPS (e.g. a tunnel or a local cert). Document the chosen approach in the README.
 - Secrets and connection strings go in `.env` (git-ignored). Keep `.env.example` up to date.
+- **Node 24+.** The server and `packages/shared` run on Node's native TypeScript type stripping: no build step, no `tsx`. Consequences: relative imports use the `.ts` extension, and only erasable syntax is allowed (no `enum`, `namespace`, parameter properties). `tsconfig.base.json` enforces this.
+- `packages/shared` is consumed as TypeScript source (`exports` points at `src/index.ts`); Vite and Node both load it directly.
+- **SvelteKit 3:** there is no `svelte.config.js`. Kit options are passed to `sveltekit({...})` in `apps/web/vite.config.ts`, and `tsconfig.json` extends `$app/tsconfig`.
+- **TypeScript is pinned to 6.0.x**: typescript-eslint, svelte-check and SvelteKit don't support TS 7 yet.
+- In dev, Vite proxies `/api` and `/socket.io` to the server on port 3000, so the web app always talks same-origin (as it will behind nginx).
 
 ## Definition of done
 
