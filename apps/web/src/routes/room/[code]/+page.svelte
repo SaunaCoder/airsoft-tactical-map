@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Events } from '@airsoft/shared';
   import type L from 'leaflet';
   import { untrack } from 'svelte';
   import { page } from '$app/state';
@@ -14,6 +15,7 @@
     NameForm,
     RoomSession,
   } from '#lib/slices/rooms/index.ts';
+  import { TemplatePicker } from '#lib/slices/templates/index.ts';
 
   const code = (page.params.code ?? '').toUpperCase();
 
@@ -45,12 +47,19 @@
 
 {#if session?.state && sharing}
   {@const state = session.state}
+  {@const socket = session.socket}
   <main class="fixed inset-0 bg-neutral-950 text-neutral-100">
     <MapCanvas bind:map />
     {#if map}
-      <DrawingLayer {map} features={state.features.features} editable={state.isLeader} socket={session.socket} />
+      <DrawingLayer
+        {map}
+        features={state.features.features}
+        editable={state.isLeader}
+        onedit={(feature) => socket.emit(Events.featureUpdate, feature)}
+        onremove={(id) => socket.emit(Events.featureDelete, { id })}
+      />
       {#if state.isLeader}
-        <LeaderTools {map} socket={session.socket} />
+        <LeaderTools {map} oncreate={(drawing) => socket.emit(Events.featureAdd, drawing)} />
       {/if}
       <MemberMarkers {map} members={state.members} selfId={state.memberId} selfPosition={sharing.position} />
     {/if}
@@ -101,6 +110,15 @@
         {/if}
         <InviteQr {code} />
         <MemberList members={state.members} you={state.memberId} />
+        {#if state.isLeader && map}
+          <TemplatePicker
+            {map}
+            onload={(load) => {
+              socket.emit(Events.templateLoad, load);
+              teamOpen = false;
+            }}
+          />
+        {/if}
       </section>
     {/if}
   </main>
