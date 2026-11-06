@@ -1,6 +1,13 @@
 @import 'tailwindcss';
 
-/* Map controls sized for a gloved thumb (min 48px), see CLAUDE.md "Mobile-first". */
+/* Mobile-first (CLAUDE.md): one hand, outdoors, maybe gloves. Every target is at least 48px. */
+
+html,
+body {
+  /* No pull-to-refresh or bounce while panning the map. */
+  overscroll-behavior: none;
+}
+
 .leaflet-control-zoom a,
 .leaflet-pm-toolbar a.leaflet-buttons-control-button {
   width: 48px !important;
@@ -12,11 +19,44 @@
   line-height: 48px !important;
   font-size: 16px;
 }
-/* Keep the drawing toolbar below the room header overlay. */
-.leaflet-top.leaflet-right {
-  margin-top: 72px;
+/* Clear the home bar / rounded corners on notched phones. */
+.leaflet-bottom {
+  margin-bottom: env(safe-area-inset-bottom);
+}
+.leaflet-right {
+  margin-right: env(safe-area-inset-right);
 }
 
+/* Name labels on member dots: bigger and bolder than Leaflet's 12px default, for sunlight. */
+.leaflet-tooltip {
+  font-size: 15px;
+  font-weight: 700;
+  padding: 2px 8px;
+}
+
+/* Geoman vertex handles: 48px hit area around a visible 16px dot (Geoman draws 14px). */
+.leaflet-marker-icon.marker-icon {
+  width: 48px !important;
+  height: 48px !important;
+  margin: -24px 0 0 -24px !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+.leaflet-marker-icon.marker-icon::after {
+  content: '';
+  position: absolute;
+  inset: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #f59e0b;
+}
+
+/* Drawn markers: a 26px diamond centred in a 48px hit area (see markerIcon in drawing-layer.ts). */
+.drawing-marker-hit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .drawing-marker {
   width: 26px;
   height: 26px;
@@ -27,7 +67,10 @@
   box-shadow: 0 1px 4px rgb(0 0 0 / 0.5);
 }
 
-/* Arrow tool reuses Geoman's polyline icon, rotated so it reads as a direction. */
+/* Arrow tool icon, drawn in Geoman's icon style (grey stroke on white). */
 .arrow-icon {
-  transform: rotate(-45deg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b5b5b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 19 19 5M10 5h9v9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 70%;
 }
