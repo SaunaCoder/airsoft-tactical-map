@@ -1,5 +1,11 @@
 import { createHash, randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
-import { JOIN_CODE_ALPHABET, JOIN_CODE_LENGTH, type CreateRoomResponse } from '@airsoft/shared';
+import {
+  JOIN_CODE_ALPHABET,
+  JOIN_CODE_LENGTH,
+  type CreateRoomResponse,
+  type RoomJoin,
+  type RoomState,
+} from '@airsoft/shared';
 
 export function generateJoinCode(pick: (max: number) => number = randomInt): string {
   let code = '';
@@ -35,4 +41,34 @@ export async function createRoom(insert: InsertRoom, newCode = generateJoinCode)
     if (await insert({ code, leaderTokenHash })) return { code, leaderToken };
   }
   throw new Error(`No free join code after ${MAX_CODE_ATTEMPTS} attempts`);
+}
+
+export type StoredMember = { id: string; name: string };
+export type StoredRoom = { code: string; leaderTokenHash: string; members: StoredMember[] };
+export type JoinPlan = { memberId: string; name: string; isNew: boolean; isLeader: boolean };
+
+/**
+ * Decides who is joining. A known `memberId` resumes that member (reconnect); an unknown one is
+ * ignored and a fresh id is issued, so clients can't mint ids. Leadership comes only from the token.
+ */
+// ponytail: member ids are visible to the room, so a member could resume as someone else.
+// Harmless while members can only share positions; add a per-member secret if members gain rights.
+export function planJoin(room: StoredRoom, join: RoomJoin, newId: string): JoinPlan {
+  const known = join.memberId === undefined ? undefined : room.members.find((m) => m.id === join.memberId);
+  return {
+    memberId: known?.id ?? newId,
+    name: join.name,
+    isNew: !known,
+    isLeader: join.leaderToken !== undefined && verifyLeaderToken(join.leaderToken, room.leaderTokenHash),
+  };
+}
+
+/** Snapshot for the joining client. `room.members` must already include the joining member. */
+export function buildRoomState(room: StoredRoom, me: JoinPlan, onlineIds: ReadonlySet<string>): RoomState {
+  return {
+    code: room.code,
+    memberId: me.memberId,
+    isLeader: me.isLeader,
+    members: room.members.map((m) => ({ id: m.id, name: m.name, online: onlineIds.has(m.id) })),
+  };
 }

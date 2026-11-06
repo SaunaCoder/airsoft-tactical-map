@@ -3,7 +3,8 @@
 import express, { type ErrorRequestHandler } from 'express';
 import mongoose from 'mongoose';
 import { config } from './core/config.ts';
-import { roomsRouter } from './slices/rooms/index.ts';
+import { createSocketServer } from './core/socket.ts';
+import { registerRoomHandlers, roomsRouter } from './slices/rooms/index.ts';
 
 const app = express();
 
@@ -22,6 +23,11 @@ app.use(errorHandler);
 
 await mongoose.connect(config.MONGO_URL, { serverSelectionTimeoutMS: 5000 });
 
-app.listen(config.PORT, () => {
+const httpServer = app.listen(config.PORT, () => {
   console.log(`server listening on http://localhost:${config.PORT}`);
+});
+
+const io = createSocketServer(httpServer);
+io.on('connection', (socket) => {
+  registerRoomHandlers(io, socket);
 });
