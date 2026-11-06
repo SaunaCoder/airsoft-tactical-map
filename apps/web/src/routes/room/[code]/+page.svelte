@@ -4,6 +4,7 @@
   import { page } from '$app/state';
   import { resolve } from '$app/paths';
   import MapCanvas from '#lib/core/MapCanvas.svelte';
+  import { DrawingLayer, LeaderTools, trackDrawings } from '#lib/slices/drawings/index.ts';
   import { CenterOnMe, GpsBanner, MemberMarkers, PositionSharing } from '#lib/slices/presence/index.ts';
   import {
     InviteQr,
@@ -27,9 +28,11 @@
     if (!name) return;
     const current = untrack(() => new RoomSession(code, name));
     const gps = untrack(() => new PositionSharing(current));
+    const untrackDrawings = trackDrawings(current);
     session = current;
     sharing = gps;
     return () => {
+      untrackDrawings();
       gps.stop();
       current.leave();
     };
@@ -45,6 +48,10 @@
   <main class="fixed inset-0 bg-neutral-950 text-neutral-100">
     <MapCanvas bind:map />
     {#if map}
+      <DrawingLayer {map} features={state.features.features} editable={state.isLeader} socket={session.socket} />
+      {#if state.isLeader}
+        <LeaderTools {map} socket={session.socket} />
+      {/if}
       <MemberMarkers {map} members={state.members} selfId={state.memberId} selfPosition={sharing.position} />
     {/if}
 
