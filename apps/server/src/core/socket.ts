@@ -12,7 +12,9 @@ export type AppSocket = Socket<ClientToServerEvents, ServerToClientEvents, Recor
 
 export function createSocketServer(httpServer: HttpServer): AppServer {
   // Same-origin only (Vite proxy in dev, nginx in prod), so no CORS config.
-  return new Server(httpServer);
+  // Tighter heartbeat than the 25 s + 20 s default: a phone that drops off the network shows as
+  // offline to the team within ~15 s.
+  return new Server(httpServer, { pingInterval: 10_000, pingTimeout: 5_000 });
 }
 
 /** An expected failure whose message is safe to show the client (e.g. "Room not found"). */
