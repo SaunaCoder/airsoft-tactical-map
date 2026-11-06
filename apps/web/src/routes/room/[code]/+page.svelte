@@ -1,7 +1,14 @@
 <script lang="ts">
   import { page } from '$app/state';
   import { resolve } from '$app/paths';
-  import { loadLastName, loadMemberId, MemberList, NameForm, RoomSession } from '#lib/slices/rooms/index.ts';
+  import {
+    InviteQr,
+    loadLastName,
+    loadMemberId,
+    MemberList,
+    NameForm,
+    RoomSession,
+  } from '#lib/slices/rooms/index.ts';
 
   const code = (page.params.code ?? '').toUpperCase();
 
@@ -36,6 +43,7 @@
     {#if session.state.isLeader}
       <p class="text-center text-amber-400">You are the leader. Share this code with your team.</p>
     {/if}
+    <InviteQr {code} />
     {#if session.error}
       <p role="alert" class="text-center text-red-400">{session.error}</p>
     {/if}
