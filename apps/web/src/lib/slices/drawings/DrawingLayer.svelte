@@ -1,21 +1,27 @@
 <script lang="ts">
-  import { Events, type MapFeature } from '@airsoft/shared';
+  import type { MapFeature } from '@airsoft/shared';
   import type L from 'leaflet';
-  import type { AppSocket } from '#lib/core/socket.ts';
   import { createDrawingLayer } from './drawing-layer.ts';
 
   let {
     map,
     features,
     editable,
-    socket,
-  }: { map: L.Map; features: MapFeature[]; editable: boolean; socket: AppSocket } = $props();
+    onedit = () => {},
+    onremove = () => {},
+  }: {
+    map: L.Map;
+    features: MapFeature[];
+    editable: boolean;
+    onedit?: (feature: MapFeature) => void;
+    onremove?: (id: string) => void;
+  } = $props();
 
   let layer = $state.raw<ReturnType<typeof createDrawingLayer>>();
   $effect(() => {
     const created = createDrawingLayer(map, editable, {
-      onEdit: (feature) => socket.emit(Events.featureUpdate, feature),
-      onRemove: (id) => socket.emit(Events.featureDelete, { id }),
+      onEdit: (feature) => onedit(feature),
+      onRemove: (id) => onremove(id),
     });
     layer = created;
     return () => created.destroy();
