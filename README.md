@@ -25,7 +25,7 @@ This app is a web page: the leader creates a room, everyone scans a QR code, typ
 - **Server-enforced roles.** Only the leader's session can change drawings. Members don't get the toolbar, but the server rejects their drawing events either way.
 - **Templates.** Outline the game zone and points of interest at home, save the template, load it into a room on game day.
 - **Persistence.** Rooms and templates live in MongoDB. Anyone who (re)joins gets the current snapshot.
-- **Built for the field.** Full-screen map, large touch targets, high contrast, a visible "Offline" state with automatic reconnect, clear banners for denied or missing GPS.
+- **Built for the field.** Full-screen map, every touch target at least 48 px (checked by an automated test), drawing tools and zoom in thumb reach at the bottom, bold name labels for sunlight, the screen kept on while in a room (a locked phone would stop sharing GPS), a visible "Offline" state with automatic reconnect, clear banners for denied or missing GPS.
 - **HTTPS deployment.** Docker Compose behind nginx with HTTPS, which browsers require for GPS.
 
 ## Architecture
@@ -74,7 +74,7 @@ apps/
       drawings/    feature add / update / delete, leader-only
       templates/   template REST CRUD, load template into a room
   web/src/
-    lib/core/      socket client, Leaflet map setup, geolocation
+    lib/core/      socket client, Leaflet map setup, geolocation, screen wake lock
     lib/slices/    the same four slices: stores and components
     routes/        thin pages that compose slices
 packages/shared/   Zod schemas, inferred types and socket event names, used by both apps
@@ -204,7 +204,7 @@ To avoid the warning, mount a locally trusted certificate instead (e.g. made wit
 ## Testing
 
 - **Unit tests (Vitest)**, next to the code: join code generation, leader token checks, join and reconnect logic, the room snapshot, the validated socket handler, a permission matrix for every drawing and template event (leader, member, not joined, invalid payload), position flood guard and send throttle, template owner scoping, GeoJSON drawing schemas and arrowhead geometry.
-- **End-to-end tests (Playwright)** on a Pixel 7 profile, with two or more browser contexts and mocked GPS: player joins by code and by QR, leader adds / moves / deletes drawings and players see it, live positions move on other screens, denied GPS, losing and regaining connection, templates prepared and loaded into a room, and REST API validation and owner scoping.
+- **End-to-end tests (Playwright)** on a Pixel 7 profile, with two or more browser contexts and mocked GPS: player joins by code and by QR, leader adds / moves / deletes drawings and players see it, live positions move on other screens, denied GPS, losing and regaining connection, templates prepared and loaded into a room, REST API validation and owner scoping, and an audit that every touch target on every screen is at least 48 px.
 
 The e2e suite blocks OpenStreetMap tile requests, so it doesn't depend on the internet or load their servers.
 
