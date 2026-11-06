@@ -1,7 +1,7 @@
 <script lang="ts">
   import { templateInputSchema, type Drawing, type MapFeature, type Template } from '@airsoft/shared';
   import type L from 'leaflet';
-  import { replaceState } from '$app/navigation';
+  import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
   import { watchGps } from '#lib/core/geolocation.ts';
   import { FIELD_ZOOM, toLatLng, toLngLat } from '#lib/core/map.ts';
@@ -67,7 +67,8 @@
     saving = true;
     try {
       const saved = await saveTemplate(id, input.data);
-      if (!id) replaceState(resolve('/templates/[id]', { id: saved.id }), {});
+      // Shallow: the URL now names the saved template, without reloading the editor.
+      if (!id) await goto(resolve('/templates/[id]', { id: saved.id }), { shallow: true, replace: true });
       id = saved.id;
       status = { ok: true, text: 'Saved' };
     } catch (err) {

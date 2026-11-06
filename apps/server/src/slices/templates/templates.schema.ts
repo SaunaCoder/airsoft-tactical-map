@@ -58,7 +58,7 @@ export async function insertTemplate(ownerKeyHash: string, input: TemplateInput)
 
 export async function replaceTemplate(ownerKeyHash: string, id: string, input: TemplateInput): Promise<Template | null> {
   const doc = await TemplateModel.findOneAndUpdate({ _id: id, ownerKeyHash }, toDoc(input), {
-    new: true,
+    returnDocument: 'after',
   }).lean<StoredTemplate>();
   return doc && toTemplate(doc);
 }
