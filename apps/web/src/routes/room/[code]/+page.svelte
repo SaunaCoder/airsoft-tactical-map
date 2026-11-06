@@ -8,6 +8,7 @@
   import { DrawingLayer, LeaderTools, trackDrawings } from '#lib/slices/drawings/index.ts';
   import { CenterOnMe, GpsBanner, MemberMarkers, PositionSharing } from '#lib/slices/presence/index.ts';
   import {
+    ConnectionBanner,
     InviteQr,
     loadLastName,
     loadMemberId,
@@ -47,19 +48,19 @@
 
 {#if session?.state && sharing}
   {@const state = session.state}
-  {@const socket = session.socket}
+  {@const current = session}
   <main class="fixed inset-0 bg-neutral-950 text-neutral-100">
     <MapCanvas bind:map />
     {#if map}
       <DrawingLayer
         {map}
         features={state.features.features}
-        editable={state.isLeader}
-        onedit={(feature) => socket.emit(Events.featureUpdate, feature)}
-        onremove={(id) => socket.emit(Events.featureDelete, { id })}
+        editable={state.isLeader && session.joined}
+        onedit={(feature) => current.send(Events.featureUpdate, feature)}
+        onremove={(id) => current.send(Events.featureDelete, { id })}
       />
-      {#if state.isLeader}
-        <LeaderTools {map} oncreate={(drawing) => socket.emit(Events.featureAdd, drawing)} />
+      {#if state.isLeader && session.joined}
+        <LeaderTools {map} oncreate={(drawing) => current.send(Events.featureAdd, drawing)} />
       {/if}
       <MemberMarkers {map} members={state.members} selfId={state.memberId} selfPosition={sharing.position} />
     {/if}
@@ -82,6 +83,7 @@
           Team
         </button>
       </header>
+      <ConnectionBanner joined={session.joined} />
       <GpsBanner status={sharing.status} />
       {#if session.error}
         <p role="alert" class="rounded-xl bg-red-900/95 px-4 py-3 font-semibold text-white shadow-lg">{session.error}</p>
@@ -114,7 +116,7 @@
           <TemplatePicker
             {map}
             onload={(load) => {
-              socket.emit(Events.templateLoad, load);
+              current.send(Events.templateLoad, load);
               teamOpen = false;
             }}
           />

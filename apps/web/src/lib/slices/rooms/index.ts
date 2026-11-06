@@ -1,3 +1,4 @@
+export { default as ConnectionBanner } from './ConnectionBanner.svelte';
 export { default as CreateRoomButton } from './CreateRoomButton.svelte';
 export { default as InviteQr } from './InviteQr.svelte';
 export { default as JoinRoomForm } from './JoinRoomForm.svelte';
