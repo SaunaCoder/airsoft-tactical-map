@@ -26,12 +26,16 @@
       editMode: true,
       removalMode: true,
     });
-    target.pm.Toolbar.copyDrawControl('Line', {
-      name: 'Arrow',
-      block: 'draw',
-      title: 'Draw Arrow',
-      className: 'control-icon leaflet-pm-icon-polyline arrow-icon',
-    });
+    // Geoman registers a custom control (and its draw mode) for the map's lifetime, and
+    // removeControls()/addControls() hide and show it with the rest. So create it once per map.
+    if (!target.pm.Toolbar.controlExists('Arrow')) {
+      target.pm.Toolbar.copyDrawControl('Line', {
+        name: 'Arrow',
+        block: 'draw',
+        title: 'Draw Arrow',
+        className: 'control-icon leaflet-pm-icon-polyline arrow-icon',
+      });
+    }
     target.pm.setGlobalOptions({
       markerStyle: { icon: markerIcon },
       pathOptions: { color: DRAWING_COLOR, weight: 5 },
@@ -53,6 +57,11 @@
 
     return () => {
       target.off('pm:create', onCreate);
+      // Also end any mode in progress, e.g. when the tools hide because the connection dropped.
+      // (Geoman warns when disabling a mode that isn't on, hence the checks.)
+      target.pm.disableDraw();
+      if (target.pm.globalEditModeEnabled()) target.pm.disableGlobalEditMode();
+      if (target.pm.globalRemovalModeEnabled()) target.pm.disableGlobalRemovalMode();
       target.pm.removeControls();
     };
   });
