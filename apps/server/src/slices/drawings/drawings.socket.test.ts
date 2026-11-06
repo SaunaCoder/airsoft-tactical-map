@@ -2,11 +2,11 @@ import { Events } from '@airsoft/shared';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Session } from '../../core/socket.ts';
 import { fakeSocket } from '../../core/socket.testing.ts';
-import { pullFeature, pushFeature, replaceFeature } from './drawings.schema.ts';
+import { pullFeature, pushFeatures, replaceFeature } from './drawings.schema.ts';
 import { registerDrawingHandlers } from './drawings.socket.ts';
 
 vi.mock('./drawings.schema.ts', () => ({
-  pushFeature: vi.fn(async () => true),
+  pushFeatures: vi.fn(async () => true),
   replaceFeature: vi.fn(async () => true),
   pullFeature: vi.fn(async () => true),
 }));
@@ -19,7 +19,7 @@ const drawing = { geometry: { type: 'Point', coordinates: [30.52, 50.45] }, prop
 const feature = { type: 'Feature', id, ...drawing };
 
 const cases = [
-  { event: Events.featureAdd, payload: drawing, persist: pushFeature, broadcast: Events.featureAdded },
+  { event: Events.featureAdd, payload: drawing, persist: pushFeatures, broadcast: Events.featureAdded },
   { event: Events.featureUpdate, payload: feature, persist: replaceFeature, broadcast: Events.featureUpdated },
   { event: Events.featureDelete, payload: { id }, persist: pullFeature, broadcast: Events.featureDeleted },
 ];
@@ -79,11 +79,11 @@ describe('feature:add', () => {
     expect(added).toMatchObject({ type: 'Feature', ...drawing });
     expect(added.id).toMatch(/^[0-9a-f-]{36}$/);
     expect(added.id).not.toBe(id);
-    expect(pushFeature).toHaveBeenCalledWith('ABC234', added);
+    expect(pushFeatures).toHaveBeenCalledWith('ABC234', [added]);
   });
 
   it('reports the room drawing limit', async () => {
-    vi.mocked(pushFeature).mockResolvedValueOnce(false);
+    vi.mocked(pushFeatures).mockResolvedValueOnce(false);
     const { socket, emit, roomEmit, send } = fakeSocket(leader);
     registerDrawingHandlers(socket);
     await send(Events.featureAdd, drawing);
