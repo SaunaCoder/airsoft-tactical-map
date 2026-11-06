@@ -217,23 +217,13 @@ importers:
         version: 5.0.6
 
   apps/web:
-    dependencies:
+    devDependencies:
       '@airsoft/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       '@geoman-io/leaflet-geoman-free':
         specifier: ^2.20.6
         version: 2.20.6(leaflet@1.9.4)
-      leaflet:
-        specifier: ^1.9.4
-        version: 1.9.4
-      qrcode:
-        specifier: ^1.5.4
-        version: 1.5.4
-      socket.io-client:
-        specifier: ^4.8.4
-        version: 4.8.4
-    devDependencies:
       '@sveltejs/adapter-node':
         specifier: ^6.0.1
         version: 6.0.1(@sveltejs/kit@3.1.1(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@6.0.3)(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0)))
@@ -252,6 +242,15 @@ importers:
       '@types/qrcode':
         specifier: ^1.5.6
         version: 1.5.6
+      leaflet:
+        specifier: ^1.9.4
+        version: 1.9.4
+      qrcode:
+        specifier: ^1.5.4
+        version: 1.5.4
+      socket.io-client:
+        specifier: ^4.8.4
+        version: 4.8.4
       svelte:
         specifier: ^5.57.3
         version: 5.57.3(@typescript-eslint/types@8.72.1)
