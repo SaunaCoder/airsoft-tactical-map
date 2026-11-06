@@ -1,13 +1,24 @@
-import { test as base, expect, type Browser, type Page } from '@playwright/test';
+import { test as base, expect, type Browser, type BrowserContext, type Page } from '@playwright/test';
 
 // Tests never hit the public OSM tile servers: it's slow, flaky and against their usage policy.
 const OSM_TILES = 'https://tile.openstreetmap.org/**';
 
-export const test = base.extend({
+/** Contexts opened by `newUser` in the current test; closed after it so a long run can't exhaust the browser. */
+const userContexts: BrowserContext[] = [];
+
+export const test = base.extend<{ closeUsers: void }>({
   context: async ({ context }, use) => {
     await context.route(OSM_TILES, (route) => route.abort());
     await use(context);
   },
+  closeUsers: [
+    // eslint-disable-next-line no-empty-pattern -- Playwright fixtures must destructure their dependencies.
+    async ({}, use) => {
+      await use();
+      await Promise.all(userContexts.splice(0).map((context) => context.close()));
+    },
+    { auto: true },
+  ],
 });
 
 export { expect };
@@ -17,6 +28,7 @@ type Geolocation = { latitude: number; longitude: number };
 /** A separate user (own browser context = own localStorage), optionally with a mocked GPS fix. */
 export async function newUser(browser: Browser, geolocation?: Geolocation): Promise<Page> {
   const context = await browser.newContext(geolocation ? { geolocation, permissions: ['geolocation'] } : {});
+  userContexts.push(context);
   await context.route(OSM_TILES, (route) => route.abort());
   return context.newPage();
 }
