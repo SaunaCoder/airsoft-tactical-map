@@ -28,7 +28,7 @@ export const featureRefSchema = z.object({ id: z.uuid() });
 
 export const featureCollectionSchema = z.object({
   type: z.literal('FeatureCollection'),
-  features: z.array(mapFeatureSchema),
+  features: z.array(mapFeatureSchema).max(MAX_FEATURES_PER_ROOM),
 });
 
 export type Drawing = z.infer<typeof drawingSchema>;

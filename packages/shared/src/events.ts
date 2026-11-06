@@ -1,6 +1,7 @@
 import type { Drawing, FeatureRef, MapFeature } from './drawings/drawings.ts';
 import type { PositionUpdate, PositionUpdated } from './presence/presence.ts';
 import type { Member, RoomJoin, RoomState } from './rooms/rooms.ts';
+import type { TemplateLoad } from './templates/templates.ts';
 
 /** Every socket event name. Apps import these; never hardcode the strings. */
 export const Events = {
@@ -16,6 +17,7 @@ export const Events = {
   featureAdded: 'feature:added',
   featureUpdated: 'feature:updated',
   featureDeleted: 'feature:deleted',
+  templateLoad: 'template:load',
   error: 'error',
 } as const;
 
@@ -30,6 +32,7 @@ export type ClientToServerEvents = {
   [Events.featureAdd]: (drawing: Drawing) => void;
   [Events.featureUpdate]: (feature: MapFeature) => void;
   [Events.featureDelete]: (ref: FeatureRef) => void;
+  [Events.templateLoad]: (payload: TemplateLoad) => void;
 };
 
 export type ServerToClientEvents = {

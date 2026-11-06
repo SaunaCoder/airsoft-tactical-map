@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Events, drawingSchema, featureRefSchema, mapFeatureSchema } from '@airsoft/shared';
 import { ClientError, handle, requireSession, type AppSocket } from '../../core/socket.ts';
-import { pullFeature, pushFeature, replaceFeature } from './drawings.schema.ts';
+import { pullFeature, pushFeatures, replaceFeature } from './drawings.schema.ts';
 import { assertCanEdit, toFeature } from './drawings.service.ts';
 
 // Changes go to the whole room, sender included: the leader's map also renders only server-confirmed state.
@@ -12,7 +12,7 @@ export function registerDrawingHandlers(socket: AppSocket): void {
     const session = requireSession(socket);
     assertCanEdit(session);
     const feature = toFeature(drawing, randomUUID());
-    if (!(await pushFeature(session.code, feature))) throw new ClientError('Drawing limit reached');
+    if (!(await pushFeatures(session.code, [feature]))) throw new ClientError('Drawing limit reached');
     room(session.code).emit(Events.featureAdded, feature);
   });
 

@@ -4,11 +4,14 @@ import { RoomModel } from '../rooms/index.ts';
 // Features live on the room document. Every write is a single atomic update; each resolves false
 // when nothing matched, so the caller can tell the client why.
 
-/** Appends unless the room already holds MAX_FEATURES_PER_ROOM (checked atomically in the filter). */
-export async function pushFeature(code: string, feature: MapFeature): Promise<boolean> {
+/** Appends all or nothing, unless the room would exceed MAX_FEATURES_PER_ROOM (checked atomically in the filter). */
+export async function pushFeatures(code: string, features: MapFeature[]): Promise<boolean> {
+  if (features.length === 0) return true;
+  if (features.length > MAX_FEATURES_PER_ROOM) return false;
+  // "There is no element at index MAX - n" means the room holds at most MAX - n features.
   const result = await RoomModel.updateOne(
-    { code, [`features.${MAX_FEATURES_PER_ROOM - 1}`]: { $exists: false } },
-    { $push: { features: feature } },
+    { code, [`features.${MAX_FEATURES_PER_ROOM - features.length}`]: { $exists: false } },
+    { $push: { features: { $each: features } } },
   );
   return result.matchedCount > 0;
 }

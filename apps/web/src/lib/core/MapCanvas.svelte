@@ -8,8 +8,10 @@
     const created = createMap(el);
     map = created;
     return () => {
-      created.remove();
       map = undefined;
+      // Sibling components (markers, drawings, Geoman controls) clean up their layers in the same
+      // synchronous teardown; removing the map first would make their cleanup hit a dead map.
+      queueMicrotask(() => created.remove());
     };
   }
 </script>
