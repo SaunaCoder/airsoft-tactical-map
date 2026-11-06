@@ -2,7 +2,12 @@
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
   import { createRoom } from './rooms.api.ts';
+  import { onMount } from 'svelte';
   import { saveLeaderToken } from './rooms.storage.ts';
+
+  // The SSR'd button is inert until JS hydrates; keep it disabled so early taps aren't silently lost.
+  let hydrated = $state(false);
+  onMount(() => (hydrated = true));
 
   let busy = $state(false);
   let error = $state('');
@@ -25,7 +30,7 @@
 <button
   type="button"
   class="min-h-14 w-full rounded-xl bg-amber-400 px-6 text-lg font-bold text-neutral-950 active:bg-amber-500 disabled:opacity-60"
-  disabled={busy}
+  disabled={busy || !hydrated}
   onclick={create}
 >
   {busy ? 'Creating...' : 'Create room'}
