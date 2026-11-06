@@ -54,7 +54,8 @@ test('leader moves a marker in edit mode, player sees it move', async ({ browser
   await leader.mouse.move(box.x + box.width / 2, box.y - 150, { steps: 10 });
   await leader.mouse.up();
 
-  await expect.poll(async () => (await playerMarker.boundingBox())!.y).toBeLessThan(before.y - 100);
+  // The marker element is re-created on update, so it can be briefly detached (null box) mid-poll.
+  await expect.poll(async () => (await playerMarker.boundingBox())?.y ?? Infinity).toBeLessThan(before.y - 100);
 });
 
 test('leader draws a zone and an arrow', async ({ browser }) => {

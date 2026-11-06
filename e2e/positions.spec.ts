@@ -29,7 +29,7 @@ test('a moving player moves on the other screens', async ({ browser }) => {
 
   // ~100 m north; arrives after the client's send interval.
   await player.context().setGeolocation({ latitude: BRAVO_GPS.latitude + 0.001, longitude: BRAVO_GPS.longitude });
-  await expect.poll(async () => (await bravo.boundingBox())!.y, { timeout: 10_000 }).toBeLessThan(before.y - 20);
+  await expect.poll(async () => (await bravo.boundingBox())?.y ?? Infinity, { timeout: 10_000 }).toBeLessThan(before.y - 20);
 });
 
 test('denied GPS shows a banner and the map still works', async ({ page }) => {
