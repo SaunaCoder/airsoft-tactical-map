@@ -6,6 +6,8 @@ import { loadLeaderToken, loadMemberId, saveLastName, saveMemberId } from './roo
 export class RoomSession {
   state = $state<RoomState | null>(null);
   error = $state('');
+  /** True between `room:state` and the next disconnect: only then does the server accept room events. */
+  joined = $state(false);
   readonly socket: AppSocket;
 
   constructor(code: string, name: string) {
@@ -26,6 +28,11 @@ export class RoomSession {
       saveMemberId(code, state.memberId);
       this.state = state;
       this.error = '';
+      this.joined = true;
+    });
+
+    this.socket.on('disconnect', () => {
+      this.joined = false;
     });
 
     this.socket.on(Events.memberJoined, (member) => {
