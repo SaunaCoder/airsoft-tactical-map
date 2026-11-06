@@ -86,8 +86,8 @@ airsoft-team-map/
 │   │       ├── core/               # bootstrap, config, db connection, socket server,
 │   │       │                       # error handling, auth helpers (leader token)
 │   │       ├── slices/
-│   │       │   ├── rooms/          # create room, join code, leader token, room state, expiry
-│   │       │   ├── presence/       # join/leave, positions, member list, last seen
+│   │       │   ├── rooms/          # create room, join code, leader token, join/leave, members, room state, expiry
+│   │       │   ├── presence/       # live positions
 │   │       │   ├── drawings/       # feature add/update/delete, undo, clear
 │   │       │   └── templates/      # template CRUD, load template into room
 │   │       └── main.ts
@@ -217,15 +217,15 @@ The model is a draft. If a change is needed, update this section in the same PR.
 
 | Direction | Event | Notes |
 |---|---|---|
-| Client -> Server | `room:join` | code, name, optional leader token, optional member id (reconnect) |
+| Client -> Server | `room:join` | code, name, optional leader token, optional member id (reconnect). One join per socket |
 | Client -> Server | `position:update` | throttled GPS position |
 | Client -> Server | `feature:add` | leader only |
 | Client -> Server | `feature:update` | leader only |
 | Client -> Server | `feature:delete` | leader only |
 | Client -> Server | `template:load` | leader only, loads template features into the room |
-| Server -> Client | `room:state` | full snapshot, sent on join and reconnect |
-| Server -> Client | `member:joined` | |
-| Server -> Client | `member:left` | |
+| Server -> Client | `room:state` | full snapshot to the joining client, sent on join and reconnect |
+| Server -> Client | `member:joined` | `{ id, name, online }` to the others; also on reconnect, so renames propagate |
+| Server -> Client | `member:left` | `{ memberId }` once the member's last socket disconnects |
 | Server -> Client | `position:updated` | |
 | Server -> Client | `feature:added` | |
 | Server -> Client | `feature:updated` | |
