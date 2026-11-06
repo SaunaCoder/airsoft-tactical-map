@@ -86,7 +86,9 @@
     <LeaderTools {map} oncreate={add} />
   {/if}
 
-  <div class="pointer-events-none absolute inset-x-0 top-0 z-[1100] flex flex-col gap-2 p-3">
+  <div
+    class="pointer-events-none absolute inset-x-0 top-0 z-[1100] flex flex-col gap-2 p-3 pt-[max(0.75rem,env(safe-area-inset-top))]"
+  >
     <header class="pointer-events-auto flex items-center gap-2 rounded-xl bg-neutral-950/90 p-2 shadow-lg">
       <a
         href={resolve('/templates')}

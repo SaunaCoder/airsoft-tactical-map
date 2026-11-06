@@ -5,6 +5,7 @@
   import { page } from '$app/state';
   import { resolve } from '$app/paths';
   import MapCanvas from '#lib/core/MapCanvas.svelte';
+  import { keepScreenOn } from '#lib/core/wake-lock.ts';
   import { DrawingLayer, LeaderTools, trackDrawings } from '#lib/slices/drawings/index.ts';
   import { CenterOnMe, GpsBanner, MemberMarkers, PositionSharing } from '#lib/slices/presence/index.ts';
   import {
@@ -32,9 +33,11 @@
     const current = untrack(() => new RoomSession(code, name));
     const gps = untrack(() => new PositionSharing(current));
     const untrackDrawings = trackDrawings(current);
+    const releaseScreen = keepScreenOn();
     session = current;
     sharing = gps;
     return () => {
+      releaseScreen();
       untrackDrawings();
       gps.stop();
       current.leave();
@@ -66,7 +69,9 @@
     {/if}
 
     <!-- Leaflet panes use z-index up to 1000; overlays sit above them. -->
-    <div class="pointer-events-none absolute inset-x-0 top-0 z-[1100] flex flex-col gap-2 p-3">
+    <div
+      class="pointer-events-none absolute inset-x-0 top-0 z-[1100] flex flex-col gap-2 p-3 pt-[max(0.75rem,env(safe-area-inset-top))]"
+    >
       <header class="flex items-start justify-between gap-2">
         <div class="pointer-events-auto flex items-center gap-2 rounded-xl bg-neutral-950/90 px-4 py-2 shadow-lg">
           <span class="font-mono text-2xl font-bold tracking-widest" data-testid="join-code">{code}</span>
@@ -91,14 +96,14 @@
     </div>
 
     {#if map}
-      <div class="absolute bottom-6 left-3 z-[1100]">
+      <div class="absolute bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-3 z-[1100]">
         <CenterOnMe {map} position={sharing.position} />
       </div>
     {/if}
 
     {#if teamOpen}
       <section
-        class="absolute inset-x-0 bottom-0 z-[1200] flex max-h-[75dvh] flex-col gap-4 overflow-y-auto rounded-t-2xl bg-neutral-950 p-4 shadow-2xl"
+        class="absolute inset-x-0 bottom-0 z-[1200] flex max-h-[75dvh] flex-col gap-4 overflow-y-auto rounded-t-2xl bg-neutral-950 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl"
         aria-label="Team"
       >
         <div class="flex items-center justify-between">
