@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import type { LngLat } from '@airsoft/shared';
 import type { InsertRoom, StoredRoom } from './rooms.service.ts';
 
 const memberSchema = new mongoose.Schema(
@@ -6,6 +7,8 @@ const memberSchema = new mongoose.Schema(
     id: { type: String, required: true },
     name: { type: String, required: true },
     lastSeen: { type: Date, required: true },
+    // GeoJSON order [lng, lat]. No default, so members without a fix have no field at all.
+    lastPosition: { type: [Number], default: undefined },
   },
   { _id: false },
 );
@@ -35,7 +38,8 @@ export const insertRoom: InsertRoom = async (room) => {
 };
 
 export async function findRoom(code: string): Promise<StoredRoom | null> {
-  return RoomModel.findOne({ code }, { code: 1, leaderTokenHash: 1, members: 1 }).lean();
+  // Typed at the DB boundary: Mongoose sees number[], but only Zod-validated [lng, lat] tuples are ever written.
+  return RoomModel.findOne({ code }, { code: 1, leaderTokenHash: 1, members: 1 }).lean<StoredRoom>();
 }
 
 /** Renames and touches an existing member, or appends a new one. Atomic per member, no read-modify-write. */
@@ -54,4 +58,11 @@ export async function upsertMember(code: string, member: { id: string; name: str
 
 export async function touchMember(code: string, memberId: string, now: Date): Promise<void> {
   await RoomModel.updateOne({ code, 'members.id': memberId }, { $set: { 'members.$.lastSeen': now } });
+}
+
+export async function setMemberPosition(code: string, memberId: string, position: LngLat, now: Date): Promise<void> {
+  await RoomModel.updateOne(
+    { code, 'members.id': memberId },
+    { $set: { 'members.$.lastPosition': position, 'members.$.lastSeen': now } },
+  );
 }

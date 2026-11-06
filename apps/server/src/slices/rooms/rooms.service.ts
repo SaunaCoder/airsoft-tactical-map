@@ -3,6 +3,7 @@ import {
   JOIN_CODE_ALPHABET,
   JOIN_CODE_LENGTH,
   type CreateRoomResponse,
+  type LngLat,
   type RoomJoin,
   type RoomState,
 } from '@airsoft/shared';
@@ -43,7 +44,7 @@ export async function createRoom(insert: InsertRoom, newCode = generateJoinCode)
   throw new Error(`No free join code after ${MAX_CODE_ATTEMPTS} attempts`);
 }
 
-export type StoredMember = { id: string; name: string };
+export type StoredMember = { id: string; name: string; lastPosition?: LngLat | null };
 export type StoredRoom = { code: string; leaderTokenHash: string; members: StoredMember[] };
 export type JoinPlan = { memberId: string; name: string; isNew: boolean; isLeader: boolean };
 
@@ -69,6 +70,11 @@ export function buildRoomState(room: StoredRoom, me: JoinPlan, onlineIds: Readon
     code: room.code,
     memberId: me.memberId,
     isLeader: me.isLeader,
-    members: room.members.map((m) => ({ id: m.id, name: m.name, online: onlineIds.has(m.id) })),
+    members: room.members.map((m) => ({
+      id: m.id,
+      name: m.name,
+      online: onlineIds.has(m.id),
+      position: m.lastPosition ?? null,
+    })),
   };
 }

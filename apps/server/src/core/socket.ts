@@ -18,6 +18,12 @@ export function createSocketServer(httpServer: HttpServer): AppServer {
 /** An expected failure whose message is safe to show the client (e.g. "Room not found"). */
 export class ClientError extends Error {}
 
+/** Session of a socket that has joined a room; throws for sockets that haven't. */
+export function requireSession(socket: Pick<AppSocket, 'data'>): Session {
+  if (!socket.data.session) throw new ClientError('Join a room first');
+  return socket.data.session;
+}
+
 /**
  * Registers a handler that only ever sees a payload parsed by `schema`.
  * Invalid payloads and thrown errors go back to this client as `error`; nothing is broadcast and nothing crashes.
