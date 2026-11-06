@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@airsoft/shared": "workspace:*",
+    "@geoman-io/leaflet-geoman-free": "^2.20.6",
     "leaflet": "^1.9.4",
     "qrcode": "^1.5.4",
     "socket.io-client": "^4.8.4"

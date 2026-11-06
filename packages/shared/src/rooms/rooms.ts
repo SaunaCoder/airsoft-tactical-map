@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { featureCollectionSchema } from '../drawings/drawings.ts';
 import { lngLatSchema } from '../geojson/position.ts';
 
 /** Uppercase letters and digits without the ambiguous 0/O and 1/I/L. */
@@ -43,6 +44,7 @@ export const roomStateSchema = z.object({
   memberId: memberIdSchema,
   isLeader: z.boolean(),
   members: z.array(memberSchema),
+  features: featureCollectionSchema,
 });
 
 export type CreateRoomResponse = z.infer<typeof createRoomResponseSchema>;

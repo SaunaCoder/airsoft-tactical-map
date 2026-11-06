@@ -196,7 +196,7 @@ Room {
   code: string                 // 6 chars, unique among active rooms
   leaderTokenHash: string
   members: [{ id, name, lastPosition, lastSeen }]
-  features: GeoJSON.FeatureCollection
+  features: Feature[]           // stored as an array (max 500), sent as a FeatureCollection in room:state
   createdAt: Date
   expiresAt: Date              // TTL index (P1)
 }
@@ -219,17 +219,17 @@ The model is a draft. If a change is needed, update this section in the same PR.
 |---|---|---|
 | Client -> Server | `room:join` | code, name, optional leader token, optional member id (reconnect). One join per socket |
 | Client -> Server | `position:update` | `{ position: [lng, lat] }`, joined members only. Client sends at most every 3 s (newest fix always goes out); server drops updates < 1 s apart |
-| Client -> Server | `feature:add` | leader only |
-| Client -> Server | `feature:update` | leader only |
-| Client -> Server | `feature:delete` | leader only |
+| Client -> Server | `feature:add` | leader only. `{ geometry, properties: { kind } }`: marker=Point, line/arrow=LineString, zone=Polygon. Server assigns the id |
+| Client -> Server | `feature:update` | leader only. Full Feature (same id), replaces the stored one |
+| Client -> Server | `feature:delete` | leader only. `{ id }` |
 | Client -> Server | `template:load` | leader only, loads template features into the room |
 | Server -> Client | `room:state` | full snapshot to the joining client, sent on join and reconnect |
 | Server -> Client | `member:joined` | `{ id, name, online, position }` to the others; also on reconnect, so renames propagate |
 | Server -> Client | `member:left` | `{ memberId }` once the member's last socket disconnects |
 | Server -> Client | `position:updated` | `{ memberId, position }` to the others (sender shows its own fix locally) |
-| Server -> Client | `feature:added` | |
-| Server -> Client | `feature:updated` | |
-| Server -> Client | `feature:deleted` | |
+| Server -> Client | `feature:added` | Feature with server id, to the whole room incl. the leader (clients render only confirmed state) |
+| Server -> Client | `feature:updated` | Feature, to the whole room |
+| Server -> Client | `feature:deleted` | `{ id }`, to the whole room |
 | Server -> Client | `error` | sent only to the offending client |
 
 Event names and payload schemas are defined once in `packages/shared` and used by both apps. Never hardcode event name strings in app code.

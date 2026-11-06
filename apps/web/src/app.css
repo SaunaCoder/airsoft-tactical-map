@@ -1,1 +1,33 @@
 @import 'tailwindcss';
+
+/* Map controls sized for a gloved thumb (min 48px), see CLAUDE.md "Mobile-first". */
+.leaflet-control-zoom a,
+.leaflet-pm-toolbar a.leaflet-buttons-control-button {
+  width: 48px !important;
+  height: 48px !important;
+  line-height: 48px !important;
+}
+.leaflet-pm-toolbar .leaflet-pm-action {
+  height: 48px !important;
+  line-height: 48px !important;
+  font-size: 16px;
+}
+/* Keep the drawing toolbar below the room header overlay. */
+.leaflet-top.leaflet-right {
+  margin-top: 72px;
+}
+
+.drawing-marker {
+  width: 26px;
+  height: 26px;
+  background: #f59e0b;
+  border: 3px solid #fff;
+  border-radius: 4px;
+  transform: rotate(45deg);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.5);
+}
+
+/* Arrow tool reuses Geoman's polyline icon, rotated so it reads as a direction. */
+.arrow-icon {
+  transform: rotate(-45deg);
+}

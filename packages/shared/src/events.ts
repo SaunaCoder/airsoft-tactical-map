@@ -1,3 +1,4 @@
+import type { Drawing, FeatureRef, MapFeature } from './drawings/drawings.ts';
 import type { PositionUpdate, PositionUpdated } from './presence/presence.ts';
 import type { Member, RoomJoin, RoomState } from './rooms/rooms.ts';
 
@@ -9,6 +10,12 @@ export const Events = {
   memberLeft: 'member:left',
   positionUpdate: 'position:update',
   positionUpdated: 'position:updated',
+  featureAdd: 'feature:add',
+  featureUpdate: 'feature:update',
+  featureDelete: 'feature:delete',
+  featureAdded: 'feature:added',
+  featureUpdated: 'feature:updated',
+  featureDeleted: 'feature:deleted',
   error: 'error',
 } as const;
 
@@ -20,6 +27,9 @@ export type SocketError = { event: string; message: string };
 export type ClientToServerEvents = {
   [Events.roomJoin]: (payload: RoomJoin) => void;
   [Events.positionUpdate]: (payload: PositionUpdate) => void;
+  [Events.featureAdd]: (drawing: Drawing) => void;
+  [Events.featureUpdate]: (feature: MapFeature) => void;
+  [Events.featureDelete]: (ref: FeatureRef) => void;
 };
 
 export type ServerToClientEvents = {
@@ -27,5 +37,8 @@ export type ServerToClientEvents = {
   [Events.memberJoined]: (member: Member) => void;
   [Events.memberLeft]: (payload: { memberId: string }) => void;
   [Events.positionUpdated]: (payload: PositionUpdated) => void;
+  [Events.featureAdded]: (feature: MapFeature) => void;
+  [Events.featureUpdated]: (feature: MapFeature) => void;
+  [Events.featureDeleted]: (ref: FeatureRef) => void;
   [Events.error]: (error: SocketError) => void;
 };

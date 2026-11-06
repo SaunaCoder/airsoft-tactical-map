@@ -1,4 +1,7 @@
 import 'leaflet/dist/leaflet.css';
+import './leaflet-global.ts';
+import '@geoman-io/leaflet-geoman-free';
+import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 import type { LngLat } from '@airsoft/shared';
 import L from 'leaflet';
 
@@ -9,8 +12,12 @@ export const toLngLat = (latLng: L.LatLng): LngLat => [latLng.lng, latLng.lat];
 
 export const FIELD_ZOOM = 17;
 
+// Geoman only touches layers that opt in with `pmIgnore: false`, so member dots can never be edited or removed.
+L.PM.setOptIn(true);
+
 export function createMap(el: HTMLElement): L.Map {
-  const map = L.map(el, { zoomControl: false }).setView([20, 0], 2);
+  // With opt-in, the map itself must opt in too, or `map.pm` is never created.
+  const map = L.map(el, { zoomControl: false, pmIgnore: false }).setView([20, 0], 2);
   // Bottom-right is in thumb reach for one-handed use.
   L.control.zoom({ position: 'bottomright' }).addTo(map);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
