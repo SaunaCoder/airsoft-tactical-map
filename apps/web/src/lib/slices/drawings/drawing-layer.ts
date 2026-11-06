@@ -7,10 +7,11 @@ export const DRAWING_COLOR = '#f59e0b';
 const ZONE_COLOR = '#ef4444';
 
 export const markerIcon = L.divIcon({
-  className: '',
+  className: 'drawing-marker-hit',
   html: '<div class="drawing-marker"></div>',
-  iconSize: [26, 26],
-  iconAnchor: [13, 13],
+  // 48px hit area for thumbs; the visible diamond is 26px (app.css).
+  iconSize: [48, 48],
+  iconAnchor: [24, 24],
 });
 
 type Callbacks = { onEdit: (feature: MapFeature) => void; onRemove: (id: string) => void };

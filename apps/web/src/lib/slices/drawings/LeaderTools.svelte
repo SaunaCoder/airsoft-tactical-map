@@ -12,7 +12,8 @@
     // Props are live getters: by cleanup time `map` may already be unset, so hold on to this one.
     const target = map;
     target.pm.addControls({
-      position: 'topright',
+      // Bottom-right, stacked above zoom: within thumb reach.
+      position: 'bottomright',
       drawMarker: true,
       drawPolyline: true,
       drawPolygon: true,
@@ -33,7 +34,7 @@
         name: 'Arrow',
         block: 'draw',
         title: 'Draw Arrow',
-        className: 'control-icon leaflet-pm-icon-polyline arrow-icon',
+        className: 'control-icon arrow-icon',
       });
     }
     target.pm.setGlobalOptions({
