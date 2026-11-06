@@ -1,4 +1,4 @@
-import { createHash, randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
+import { randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
 import {
   JOIN_CODE_ALPHABET,
   JOIN_CODE_LENGTH,
@@ -8,6 +8,7 @@ import {
   type RoomJoin,
   type RoomState,
 } from '@airsoft/shared';
+import { sha256Hex } from '../../core/secrets.ts';
 
 export function generateJoinCode(pick: (max: number) => number = randomInt): string {
   let code = '';
@@ -15,13 +16,10 @@ export function generateJoinCode(pick: (max: number) => number = randomInt): str
   return code;
 }
 
+export const hashLeaderToken = sha256Hex;
+
 export function generateLeaderToken(): string {
   return randomBytes(32).toString('base64url');
-}
-
-// Unsalted SHA-256 is enough here: the token is 256 bits of CSPRNG output, not a guessable password.
-export function hashLeaderToken(token: string): string {
-  return createHash('sha256').update(token).digest('hex');
 }
 
 export function verifyLeaderToken(token: string, storedHash: string): boolean {
