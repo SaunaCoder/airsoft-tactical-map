@@ -203,15 +203,26 @@ Room {
 
 Template {
   name: string
-  ownerKey: string
+  ownerKeyHash: string         // SHA-256 of the random owner key kept in the creating device's localStorage
   center: [lng, lat]
   zoom: number
-  features: GeoJSON.FeatureCollection
-  createdAt: Date
+  features: Feature[]          // same Feature schema as rooms, max 500
+  createdAt, updatedAt: Date
 }
 ```
 
 The model is a draft. If a change is needed, update this section in the same PR.
+
+## REST endpoints
+
+| Method | Path | Notes |
+|---|---|---|
+| `POST` | `/api/rooms` | `201 { code, leaderToken }`. The token is returned only here |
+| `GET` | `/api/templates` | summaries (no features), newest first |
+| `POST` | `/api/templates` | body `templateInputSchema`, `201` with the template |
+| `GET` / `PUT` / `DELETE` | `/api/templates/:id` | `404` for missing ids and for other owners' templates alike |
+
+Template requests need the `x-owner-key` header (`401` without it). Errors are `{ error }` JSON: `400` invalid body, `404` not found, `500` without details.
 
 ## Socket events (draft)
 
@@ -222,7 +233,7 @@ The model is a draft. If a change is needed, update this section in the same PR.
 | Client -> Server | `feature:add` | leader only. `{ geometry, properties: { kind } }`: marker=Point, line/arrow=LineString, zone=Polygon. Server assigns the id |
 | Client -> Server | `feature:update` | leader only. Full Feature (same id), replaces the stored one |
 | Client -> Server | `feature:delete` | leader only. `{ id }` |
-| Client -> Server | `template:load` | leader only, loads template features into the room |
+| Client -> Server | `template:load` | leader only. `{ templateId, ownerKey }`. Appends the template's features to the room with fresh ids, then `feature:added` per feature |
 | Server -> Client | `room:state` | full snapshot to the joining client, sent on join and reconnect |
 | Server -> Client | `member:joined` | `{ id, name, online, position }` to the others; also on reconnect, so renames propagate |
 | Server -> Client | `member:left` | `{ memberId }` once the member's last socket disconnects |
