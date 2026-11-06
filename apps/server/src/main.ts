@@ -4,6 +4,7 @@ import express, { type ErrorRequestHandler } from 'express';
 import mongoose from 'mongoose';
 import { config } from './core/config.ts';
 import { createSocketServer } from './core/socket.ts';
+import { registerDrawingHandlers } from './slices/drawings/index.ts';
 import { registerPresenceHandlers } from './slices/presence/index.ts';
 import { registerRoomHandlers, roomsRouter } from './slices/rooms/index.ts';
 
@@ -32,4 +33,5 @@ const io = createSocketServer(httpServer);
 io.on('connection', (socket) => {
   registerRoomHandlers(io, socket);
   registerPresenceHandlers(socket);
+  registerDrawingHandlers(socket);
 });

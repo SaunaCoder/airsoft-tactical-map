@@ -1,4 +1,4 @@
-import { joinCodeSchema } from '@airsoft/shared';
+import { joinCodeSchema, type MapFeature } from '@airsoft/shared';
 import { describe, expect, it, vi } from 'vitest';
 import {
   buildRoomState,
@@ -100,7 +100,13 @@ describe('planJoin', () => {
 });
 
 describe('buildRoomState', () => {
-  it('marks members online by connected ids and includes last positions', () => {
+  it('marks members online by connected ids and includes last positions and drawings', () => {
+    const marker: MapFeature = {
+      type: 'Feature',
+      id: 'f',
+      geometry: { type: 'Point', coordinates: [30.52, 50.45] },
+      properties: { kind: 'marker' },
+    };
     const room: StoredRoom = {
       code: 'ABC234',
       leaderTokenHash: 'x',
@@ -108,6 +114,7 @@ describe('buildRoomState', () => {
         { id: 'a', name: 'Alpha', lastPosition: [30.52, 50.45] },
         { id: 'b', name: 'Bravo' },
       ],
+      features: [marker],
     };
     const state = buildRoomState(room, { memberId: 'a', name: 'Alpha', isNew: false, isLeader: true }, new Set(['a']));
     expect(state).toEqual({
@@ -118,6 +125,7 @@ describe('buildRoomState', () => {
         { id: 'a', name: 'Alpha', online: true, position: [30.52, 50.45] },
         { id: 'b', name: 'Bravo', online: false, position: null },
       ],
+      features: { type: 'FeatureCollection', features: [marker] },
     });
   });
 });

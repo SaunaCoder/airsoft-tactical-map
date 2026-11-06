@@ -4,6 +4,7 @@ import {
   JOIN_CODE_LENGTH,
   type CreateRoomResponse,
   type LngLat,
+  type MapFeature,
   type RoomJoin,
   type RoomState,
 } from '@airsoft/shared';
@@ -45,7 +46,7 @@ export async function createRoom(insert: InsertRoom, newCode = generateJoinCode)
 }
 
 export type StoredMember = { id: string; name: string; lastPosition?: LngLat | null };
-export type StoredRoom = { code: string; leaderTokenHash: string; members: StoredMember[] };
+export type StoredRoom = { code: string; leaderTokenHash: string; members: StoredMember[]; features?: MapFeature[] };
 export type JoinPlan = { memberId: string; name: string; isNew: boolean; isLeader: boolean };
 
 /**
@@ -76,5 +77,6 @@ export function buildRoomState(room: StoredRoom, me: JoinPlan, onlineIds: Readon
       online: onlineIds.has(m.id),
       position: m.lastPosition ?? null,
     })),
+    features: { type: 'FeatureCollection', features: room.features ?? [] },
   };
 }

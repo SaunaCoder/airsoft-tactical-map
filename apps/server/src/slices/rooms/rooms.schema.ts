@@ -19,6 +19,8 @@ const roomSchema = new mongoose.Schema(
     code: { type: String, required: true, unique: true },
     leaderTokenHash: { type: String, required: true },
     members: { type: [memberSchema], default: [] },
+    // GeoJSON Features, validated with the shared Zod schema before every write.
+    features: { type: [mongoose.Schema.Types.Mixed], default: [] },
   },
   { timestamps: { createdAt: true, updatedAt: false } },
 );
@@ -39,7 +41,7 @@ export const insertRoom: InsertRoom = async (room) => {
 
 export async function findRoom(code: string): Promise<StoredRoom | null> {
   // Typed at the DB boundary: Mongoose sees number[], but only Zod-validated [lng, lat] tuples are ever written.
-  return RoomModel.findOne({ code }, { code: 1, leaderTokenHash: 1, members: 1 }).lean<StoredRoom>();
+  return RoomModel.findOne({ code }, { code: 1, leaderTokenHash: 1, members: 1, features: 1 }).lean<StoredRoom>();
 }
 
 /** Renames and touches an existing member, or appends a new one. Atomic per member, no read-modify-write. */
