@@ -218,15 +218,15 @@ The model is a draft. If a change is needed, update this section in the same PR.
 | Direction | Event | Notes |
 |---|---|---|
 | Client -> Server | `room:join` | code, name, optional leader token, optional member id (reconnect). One join per socket |
-| Client -> Server | `position:update` | throttled GPS position |
+| Client -> Server | `position:update` | `{ position: [lng, lat] }`, joined members only. Client sends at most every 3 s (newest fix always goes out); server drops updates < 1 s apart |
 | Client -> Server | `feature:add` | leader only |
 | Client -> Server | `feature:update` | leader only |
 | Client -> Server | `feature:delete` | leader only |
 | Client -> Server | `template:load` | leader only, loads template features into the room |
 | Server -> Client | `room:state` | full snapshot to the joining client, sent on join and reconnect |
-| Server -> Client | `member:joined` | `{ id, name, online }` to the others; also on reconnect, so renames propagate |
+| Server -> Client | `member:joined` | `{ id, name, online, position }` to the others; also on reconnect, so renames propagate |
 | Server -> Client | `member:left` | `{ memberId }` once the member's last socket disconnects |
-| Server -> Client | `position:updated` | |
+| Server -> Client | `position:updated` | `{ memberId, position }` to the others (sender shows its own fix locally) |
 | Server -> Client | `feature:added` | |
 | Server -> Client | `feature:updated` | |
 | Server -> Client | `feature:deleted` | |

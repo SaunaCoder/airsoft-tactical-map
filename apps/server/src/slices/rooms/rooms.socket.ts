@@ -23,9 +23,11 @@ export function registerRoomHandlers(io: AppServer, socket: AppSocket): void {
     await socket.join(room.code);
 
     const [fresh, online] = await Promise.all([findRoom(room.code), onlineMemberIds(io, room.code)]);
-    socket.emit(Events.roomState, buildRoomState(fresh ?? room, plan, online));
+    const state = buildRoomState(fresh ?? room, plan, online);
+    socket.emit(Events.roomState, state);
     // Sent on every join (not just new members) so a reconnect with a new name updates everyone.
-    socket.to(room.code).emit(Events.memberJoined, { id: plan.memberId, name: plan.name, online: true });
+    const me = state.members.find((m) => m.id === plan.memberId);
+    if (me) socket.to(room.code).emit(Events.memberJoined, me);
   });
 
   socket.on('disconnect', async () => {

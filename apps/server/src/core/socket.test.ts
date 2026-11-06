@@ -1,14 +1,7 @@
 import { Events, roomJoinSchema } from '@airsoft/shared';
 import { describe, expect, it, vi } from 'vitest';
-import { ClientError, handle, type AppSocket } from './socket.ts';
-
-/** Minimal stand-in: captures the registered listener and records emits. */
-function fakeSocket() {
-  let listener: (raw: unknown) => Promise<void> = async () => {};
-  const emit = vi.fn();
-  const socket = { on: (_event: string, fn: typeof listener) => (listener = fn), emit } as unknown as AppSocket;
-  return { socket, emit, send: (raw: unknown) => listener(raw) };
-}
+import { ClientError, handle, requireSession } from './socket.ts';
+import { fakeSocket } from './socket.testing.ts';
 
 const validJoin = { code: 'ABC234', name: 'Alpha' };
 
@@ -17,7 +10,7 @@ describe('handle', () => {
     const { socket, emit, send } = fakeSocket();
     const handler = vi.fn();
     handle(socket, Events.roomJoin, roomJoinSchema, handler);
-    await send({ code: ' abc234 ', name: 'Alpha' });
+    await send(Events.roomJoin, { code: ' abc234 ', name: 'Alpha' });
     expect(handler).toHaveBeenCalledWith({ code: 'ABC234', name: 'Alpha' });
     expect(emit).not.toHaveBeenCalled();
   });
@@ -28,7 +21,7 @@ describe('handle', () => {
       const { socket, emit, send } = fakeSocket();
       const handler = vi.fn();
       handle(socket, Events.roomJoin, roomJoinSchema, handler);
-      await send(raw);
+      await send(Events.roomJoin, raw);
       expect(handler).not.toHaveBeenCalled();
       expect(emit).toHaveBeenCalledWith(Events.error, { event: Events.roomJoin, message: 'Invalid payload' });
     },
@@ -39,7 +32,7 @@ describe('handle', () => {
     handle(socket, Events.roomJoin, roomJoinSchema, () => {
       throw new ClientError('Room not found');
     });
-    await send(validJoin);
+    await send(Events.roomJoin, validJoin);
     expect(emit).toHaveBeenCalledWith(Events.error, { event: Events.roomJoin, message: 'Room not found' });
   });
 
@@ -49,7 +42,18 @@ describe('handle', () => {
     handle(socket, Events.roomJoin, roomJoinSchema, async () => {
       throw new Error('db exploded at 10.0.0.5');
     });
-    await send(validJoin);
+    await send(Events.roomJoin, validJoin);
     expect(emit).toHaveBeenCalledWith(Events.error, { event: Events.roomJoin, message: 'Internal error' });
+  });
+});
+
+describe('requireSession', () => {
+  it('returns the session of a joined socket', () => {
+    const session = { code: 'ABC234', memberId: 'm', isLeader: false };
+    expect(requireSession(fakeSocket(session).socket)).toBe(session);
+  });
+
+  it('rejects a socket that has not joined', () => {
+    expect(() => requireSession(fakeSocket().socket)).toThrow(ClientError);
   });
 });

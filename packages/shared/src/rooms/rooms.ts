@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { lngLatSchema } from '../geojson/position.ts';
 
 /** Uppercase letters and digits without the ambiguous 0/O and 1/I/L. */
 export const JOIN_CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -32,6 +33,8 @@ export const memberSchema = z.object({
   id: memberIdSchema,
   name: displayNameSchema,
   online: z.boolean(),
+  /** Last known GPS position, so a joining client sees everyone before the next update. */
+  position: lngLatSchema.nullable(),
 });
 
 /** `room:state`: full snapshot for the joining client, sent on join and every reconnect. */

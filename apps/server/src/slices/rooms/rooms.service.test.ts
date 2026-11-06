@@ -100,12 +100,12 @@ describe('planJoin', () => {
 });
 
 describe('buildRoomState', () => {
-  it('marks members online by connected ids', () => {
+  it('marks members online by connected ids and includes last positions', () => {
     const room: StoredRoom = {
       code: 'ABC234',
       leaderTokenHash: 'x',
       members: [
-        { id: 'a', name: 'Alpha' },
+        { id: 'a', name: 'Alpha', lastPosition: [30.52, 50.45] },
         { id: 'b', name: 'Bravo' },
       ],
     };
@@ -115,8 +115,8 @@ describe('buildRoomState', () => {
       memberId: 'a',
       isLeader: true,
       members: [
-        { id: 'a', name: 'Alpha', online: true },
-        { id: 'b', name: 'Bravo', online: false },
+        { id: 'a', name: 'Alpha', online: true, position: [30.52, 50.45] },
+        { id: 'b', name: 'Bravo', online: false, position: null },
       ],
     });
   });
