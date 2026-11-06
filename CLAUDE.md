@@ -245,6 +245,8 @@ Template requests need the `x-owner-key` header (`401` without it). Errors are `
 
 Event names and payload schemas are defined once in `packages/shared` and used by both apps. Never hardcode event name strings in app code.
 
+Clients emit room events only through `RoomSession.send` (or with an explicit `joined` check), never `socket.emit` directly: Socket.IO buffers emits made while disconnected and flushes them on reconnect *before* `room:join`, where the server rejects them. The server heartbeat is 10 s + 5 s, so a phone that drops off the network shows as offline within ~15 s; the browser's `offline` event makes the client side immediate.
+
 ## Testing
 
 - **Vitest** for unit tests, colocated with the code (`*.test.ts`). Required for: join code generation, leader token check, permission checks per event, room state on reconnect, undo stack, GPS throttling/smoothing.
