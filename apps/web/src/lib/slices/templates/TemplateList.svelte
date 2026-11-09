@@ -28,7 +28,7 @@
 
 <a
   href={resolve('/templates/[id]', { id: 'new' })}
-  class="flex min-h-14 items-center justify-center bg-lime-500 px-6 text-lg font-bold text-olive-950 uppercase tracking-wider active:bg-lime-600"
+  class="flex min-h-14 items-center justify-center bg-accent-500 px-6 text-lg font-bold text-olive-950 uppercase tracking-wider active:bg-accent-600"
 >
   New template
 </a>

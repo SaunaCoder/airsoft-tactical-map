@@ -23,7 +23,7 @@
     <span class="text-sm font-bold uppercase tracking-widest text-olive-400">Your name</span>
     <input
       bind:value={name}
-      class="min-h-14 border-2 border-olive-700 bg-olive-900 px-4 text-xl focus:border-lime-500 focus:outline-none"
+      class="min-h-14 border-2 border-olive-700 bg-olive-900 px-4 text-xl focus:border-accent-500 focus:outline-none"
       maxlength="24"
       autocomplete="nickname"
       aria-invalid={error !== ''}
@@ -32,7 +32,7 @@
   {#if error}
     <p role="alert" class="text-red-400">{error}</p>
   {/if}
-  <button type="submit" class="min-h-14 bg-lime-500 px-6 text-lg font-bold text-olive-950 uppercase tracking-wider active:bg-lime-600">
+  <button type="submit" class="min-h-14 bg-accent-500 px-6 text-lg font-bold text-olive-950 uppercase tracking-wider active:bg-accent-600">
     Join
   </button>
 </form>

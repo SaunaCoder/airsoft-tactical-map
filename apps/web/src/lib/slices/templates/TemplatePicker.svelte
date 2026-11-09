@@ -27,7 +27,7 @@
     <p role="alert" class="text-red-400">{error}</p>
   {:else if templates?.length === 0}
     <p class="text-olive-400">
-      No templates on this device yet. <a href={resolve('/templates')} class="text-lime-400 underline">Create one</a>.
+      No templates on this device yet. <a href={resolve('/templates')} class="text-accent-400 underline">Create one</a>.
     </p>
   {:else if templates}
     {#each templates as template (template.id)}
@@ -37,7 +37,7 @@
         onclick={() => load(template)}
       >
         <span>{template.name}</span>
-        <span class="font-bold uppercase tracking-wider text-lime-400">Load</span>
+        <span class="font-bold uppercase tracking-wider text-accent-400">Load</span>
       </button>
     {/each}
   {/if}

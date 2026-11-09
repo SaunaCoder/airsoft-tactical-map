@@ -100,11 +100,11 @@
         placeholder="Template name"
         aria-label="Template name"
         maxlength="60"
-        class="min-h-12 min-w-0 flex-1 border-2 border-olive-700 bg-olive-900 px-3 text-lg focus:border-lime-500 focus:outline-none"
+        class="min-h-12 min-w-0 flex-1 border-2 border-olive-700 bg-olive-900 px-3 text-lg focus:border-accent-500 focus:outline-none"
       />
       <button
         type="button"
-        class="min-h-12 bg-lime-500 px-5 text-lg font-bold text-olive-950 uppercase tracking-wider active:bg-lime-600 disabled:opacity-60"
+        class="min-h-12 bg-accent-500 px-5 text-lg font-bold text-olive-950 uppercase tracking-wider active:bg-accent-600 disabled:opacity-60"
         disabled={saving}
         onclick={save}
       >
@@ -116,7 +116,7 @@
         role={status.ok ? 'status' : 'alert'}
         class={[
           'pointer-events-auto self-start px-4 py-2 font-semibold shadow-lg',
-          status.ok ? 'bg-lime-500 text-olive-950' : 'bg-red-900/95 text-white',
+          status.ok ? 'bg-accent-500 text-olive-950' : 'bg-red-900/95 text-white',
         ]}
       >
         {status.text}

@@ -9,7 +9,7 @@
 
 <main class="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-6 bg-olive-950 p-4 text-olive-50">
   <h1 class="text-center text-3xl font-bold uppercase tracking-wider">
-    <span class="block text-sm tracking-[0.4em] text-lime-400">Airsoft</span>
+    <span class="block text-sm tracking-[0.4em] text-accent-400">Airsoft</span>
     Tactical Map
   </h1>
   <JoinRoomForm />
@@ -19,7 +19,7 @@
   <CreateRoomButton />
   <a
     href={resolve('/templates')}
-    class="flex min-h-12 items-center justify-center text-lg text-lime-400 underline active:text-lime-600"
+    class="flex min-h-12 items-center justify-center text-lg text-accent-400 underline active:text-accent-600"
   >
     Prepare a template
   </a>

@@ -8,7 +8,7 @@
 
 <button
   type="button"
-  class="flex size-14 items-center justify-center border-2 border-olive-700 bg-olive-950/90 text-lime-400 shadow-lg active:bg-olive-800 disabled:text-olive-500"
+  class="flex size-14 items-center justify-center border-2 border-olive-700 bg-olive-950/90 text-accent-400 shadow-lg active:bg-olive-800 disabled:text-olive-500"
   aria-label="Center on me"
   disabled={!position}
   onclick={() => position && map.setView(toLatLng(position), Math.max(map.getZoom(), FIELD_ZOOM))}

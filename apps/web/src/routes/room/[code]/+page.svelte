@@ -76,7 +76,7 @@
         <div class="pointer-events-auto flex min-h-12 items-center gap-2 border border-olive-700 bg-olive-950/90 px-4 py-2 shadow-lg">
           <span class="font-mono text-2xl font-bold tracking-widest" data-testid="join-code">{code}</span>
           {#if state.isLeader}
-            <span class="bg-lime-500 px-2 py-0.5 text-sm font-bold uppercase tracking-wider text-olive-950">Leader</span>
+            <span class="bg-accent-500 px-2 py-0.5 text-sm font-bold uppercase tracking-wider text-olive-950">Leader</span>
           {/if}
         </div>
         <button
@@ -103,17 +103,17 @@
 
     {#if teamOpen}
       <section
-        class="absolute inset-x-0 bottom-0 z-[1200] flex max-h-[75dvh] flex-col gap-4 overflow-y-auto border-t-4 border-lime-500 bg-olive-950 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl"
+        class="absolute inset-x-0 bottom-0 z-[1200] flex max-h-[75dvh] flex-col gap-4 overflow-y-auto border-t-4 border-accent-500 bg-olive-950 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl"
         aria-label="Team"
       >
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-bold uppercase tracking-wider">Team</h2>
-          <button type="button" class="min-h-12 border-2 border-olive-700 px-4 font-bold uppercase tracking-wider text-lime-400 active:bg-olive-800" onclick={() => (teamOpen = false)}>
+          <button type="button" class="min-h-12 border-2 border-olive-700 px-4 font-bold uppercase tracking-wider text-accent-400 active:bg-olive-800" onclick={() => (teamOpen = false)}>
             Close
           </button>
         </div>
         {#if state.isLeader}
-          <p class="text-lime-400">You are the leader. Share the code or QR with your team.</p>
+          <p class="text-accent-400">You are the leader. Share the code or QR with your team.</p>
         {/if}
         <InviteQr {code} />
         <MemberList members={state.members} you={state.memberId} />
@@ -138,7 +138,7 @@
 
     {#if session?.error}
       <p role="alert" class="text-center text-lg text-red-400">{session.error}</p>
-      <a href={resolve('/')} class="flex min-h-12 items-center text-lg text-lime-400 underline">Back to start</a>
+      <a href={resolve('/')} class="flex min-h-12 items-center text-lg text-accent-400 underline">Back to start</a>
     {:else if !name}
       <NameForm onjoin={(n) => (name = n)} />
     {:else}
