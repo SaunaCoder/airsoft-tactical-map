@@ -5,7 +5,7 @@ Real-time tactical map for airsoft teams. The leader creates a room, players joi
 SvelteKit, Leaflet, Node.js, Express, Socket.IO, MongoDB, Zod, Docker, nginx.
 
 <p align="center">
-  <img src="docs/screenshots/room-map.png" alt="Leader's map: live member positions, a zone, an arrow and a marker" width="300">
+  <img src="docs/screenshots/room-map.png" alt="Leader's map on the Land Board orthophoto: live member positions, a zone, an arrow and a marker" width="300">
   &nbsp;&nbsp;
   <img src="docs/screenshots/team-sheet.png" alt="Team sheet with the join QR code and member list" width="300">
 </p>
@@ -26,7 +26,7 @@ This app is a web page: the leader creates a room, everyone scans a QR code, typ
 - **Templates.** Outline the game zone and points of interest at home, save the template, load it into a room on game day.
 - **Persistence.** Rooms and templates live in MongoDB. Anyone who (re)joins gets the current snapshot.
 - **Built for the field.** Full-screen map, every touch target at least 48 px (checked by an automated test), drawing tools and zoom in thumb reach at the bottom, bold name labels for sunlight, the screen kept on while in a room (a locked phone would stop sharing GPS), a visible "Offline" state with automatic reconnect, clear banners for denied or missing GPS.
-- **Map layers.** OpenStreetMap by default, plus Estonian Land Board (Maa- ja Ruumiamet) orthophotos, topographic map and a labels overlay for games in Estonia. The last choice is remembered on the device. See [Map layers](#map-layers).
+- **Map layers.** Estonian Land Board (Maa- ja Ruumiamet) orthophotos by default, plus its topographic map, a labels overlay, and OpenStreetMap ("World Simple") for games outside Estonia. Picked from a bottom sheet; the last choice is remembered on the device. See [Map layers](#map-layers).
 - **HTTPS deployment.** Docker Compose behind nginx with HTTPS, which browsers require for GPS.
 
 ## Architecture
@@ -65,18 +65,19 @@ flowchart LR
 
 ### Map layers
 
-The layer switcher (bottom right, above zoom) offers:
+The layers button (bottom right, above zoom) opens a bottom sheet; a tap anywhere outside it closes it. The options:
 
 | Layer | Source | Coverage |
 |---|---|---|
-| Map | OpenStreetMap | world |
-| Photo (EE) | Maa- ja Ruumiamet orthophoto | Estonia, about zoom 8-18 |
+| Photo (EE) (default) | Maa- ja Ruumiamet orthophoto | Estonia, about zoom 8-18 |
 | Topo (EE) | Maa- ja Ruumiamet base map | Estonia |
+| World Simple | OpenStreetMap | world |
 | Labels (EE) | Maa- ja Ruumiamet hybrid overlay (roads, names) | Estonia, on top of any base layer |
 
 - **No API key.** The Land Board tiles are open data, so nothing goes into `.env` and nothing secret reaches the browser. The open data licence requires naming the source and the data's age, which the attribution line does ("Estonian Land Board <year>").
 - **Web Mercator, not L-EST97.** The Land Board's native projection is L-EST97 (EPSG:3301). Using it directly would need Proj4Leaflet, so the app uses the Land Board's Web Mercator (`@GMC`) tile set, which works with Leaflet as is. The trade-off is a little resampling and the Mercator scale distortion, which is negligible at field zoom levels.
 - **Zoom past the tiles.** The tiles stop at zoom 18 (OSM at 19). The map goes to 20 and upscales the last real tiles instead of showing grey.
+- **Outside Estonia** the default photo layer is empty (grey), and so is the zoomed-out world view before the GPS fix. Pick World Simple there.
 - Orthophoto tiles are heavier than OSM tiles, which matters on mobile data.
 
 ### Code organization: monorepo with vertical slices
