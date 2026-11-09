@@ -77,6 +77,46 @@ body {
   line-height: 48px !important;
   font-size: 16px;
 }
+/* Layer switcher: a 48px toggle that opens a list of 48px rows. */
+.leaflet-container .leaflet-control-layers {
+  /* !important: leaflet.css's .leaflet-touch .leaflet-control-layers has the same specificity. */
+  border: 2px solid var(--color-olive-700) !important;
+  border-radius: 0;
+  background: var(--color-olive-900);
+  color: var(--color-olive-50);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.45);
+}
+/* Three classes: leaflet.css sizes the toggle and swaps its icon with two-class .leaflet-touch / .leaflet-retina rules. */
+.leaflet-container .leaflet-control-layers .leaflet-control-layers-toggle {
+  width: 48px;
+  height: 48px;
+  /* Leaflet's icon is dark grey; a light stacked-layers icon reads on the dark panel. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f4f5ee' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M12 3 2 8l10 5 10-5z'/%3E%3Cpath d='m2 13 10 5 10-5'/%3E%3C/svg%3E");
+  background-size: 28px;
+}
+.leaflet-container .leaflet-control-layers-expanded {
+  padding: 4px 8px;
+  font-size: 16px;
+}
+.leaflet-container .leaflet-control-layers label {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+}
+.leaflet-container .leaflet-control-layers label > span {
+  display: flex;
+  align-items: center;
+}
+.leaflet-container .leaflet-control-layers label input {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  accent-color: var(--color-accent-500);
+}
+.leaflet-container .leaflet-control-layers-separator {
+  border-top-color: var(--color-olive-700);
+}
+
 /* Clear the home bar / rounded corners on notched phones. */
 .leaflet-bottom {
   margin-bottom: env(safe-area-inset-bottom);
