@@ -69,9 +69,10 @@ test('leader draws a zone and an arrow', async ({ browser }) => {
   await expect(player.locator('path.drawing-zone')).toHaveCount(1);
 
   await leader.getByTitle('Draw Arrow').click();
-  await tap(leader, 80, 650);
-  await tap(leader, 300, 600);
-  await tap(leader, 300, 600); // tap the last vertex to finish
+  // Below Geoman's Finish / Cancel row, which opens left of the Arrow button (around y 590-640).
+  await tap(leader, 80, 720);
+  await tap(leader, 300, 680);
+  await tap(leader, 300, 680); // tap the last vertex to finish
   await expect(player.locator('path.drawing-arrow')).toHaveCount(2); // shaft + head
 });
 

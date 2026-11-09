@@ -17,9 +17,11 @@ function smallTouchTargets(page: Page): Promise<string[]> {
       '.leaflet-marker-icon.leaflet-interactive',
     ].join(',');
     return [...document.querySelectorAll<HTMLElement>(selector)].flatMap((el) => {
-      const box = el.getBoundingClientRect();
+      // A radio or checkbox inside a label is hit through the whole label row.
+      const target = el.matches('input[type="radio"], input[type="checkbox"]') ? (el.closest('label') ?? el) : el;
+      const box = target.getBoundingClientRect();
       if (box.width === 0 || box.height === 0 || getComputedStyle(el).visibility === 'hidden') return [];
-      // OSM attribution is legally required text, not a control anyone needs to hit.
+      // Tile attribution is legally required text, not a control anyone needs to hit.
       if (el.closest('.leaflet-control-attribution')) return [];
       if (box.width >= min && box.height >= min) return [];
       const label = (el.getAttribute('aria-label') ?? el.title ?? el.textContent ?? '').trim().slice(0, 30);
@@ -55,6 +57,9 @@ test('every touch target is at least 48x48 px', async ({ browser }) => {
   await leader.getByTestId('map').click({ position: { x: 100, y: 600 } });
   await leader.getByTitle('Draw Marker').click();
   expect(await smallTouchTargets(leader), 'room map (leader)').toEqual([]);
+  await leader.getByRole('button', { name: 'Layers' }).tap();
+  await expect(leader.getByRole('radio', { name: 'Photo (EE)' })).toBeVisible();
+  expect(await smallTouchTargets(leader), 'layer switcher').toEqual([]);
   await openTeam(leader);
   await leader.getByRole('button', { name: 'Show QR code' }).click();
   await expect(leader.getByRole('region', { name: 'Load a template' })).toContainText('Field A');
