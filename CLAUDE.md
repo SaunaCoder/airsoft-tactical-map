@@ -63,7 +63,7 @@ Expected: <result>
 ## Tech stack
 
 - **Frontend:** SvelteKit, TypeScript, Tailwind CSS
-- **Map:** Leaflet + OpenStreetMap tiles, Leaflet-Geoman for drawing tools
+- **Map:** Leaflet + OpenStreetMap and Estonian Land Board (Maa- ja Ruumiamet, Web Mercator) tiles, Leaflet-Geoman for drawing tools
 - **Backend:** Node.js, Express, TypeScript
 - **Real-time:** Socket.IO (WebSocket)
 - **Database:** MongoDB (Mongoose)
@@ -251,7 +251,7 @@ Clients emit room events only through `RoomSession.send` (or with an explicit `j
 
 - **Vitest** for unit tests, colocated with the code (`*.test.ts`). Required for: join code generation, leader token check, permission checks per event, room state on reconnect, undo stack, GPS throttling/smoothing.
 - **Playwright** for e2e in `e2e/`. Use two browser contexts for multi-user flows and mock geolocation via Playwright's geolocation permission + coordinates.
-- `e2e/mobile.spec.ts` audits every screen for touch targets under 48x48 px. When adding a screen or control, add that state to the audit. Use `newUser()` from `e2e/fixtures.ts` for extra users (it blocks OSM tiles and closes the context after the test).
+- `e2e/mobile.spec.ts` audits every screen for touch targets under 48x48 px. When adding a screen or control, add that state to the audit. Use `newUser()` from `e2e/fixtures.ts` for extra users (it blocks tile servers and closes the context after the test).
 - Every bug fix (`bug/` branch) comes with a test that fails before the fix.
 - Run lint, typecheck and tests before writing the PR description. Do not claim tests pass without running them.
 

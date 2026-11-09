@@ -67,6 +67,7 @@ body {
 }
 
 .leaflet-control-zoom a,
+.leaflet-bar a.layers-toggle,
 .leaflet-pm-toolbar a.leaflet-buttons-control-button {
   width: 48px !important;
   height: 48px !important;
@@ -77,6 +78,12 @@ body {
   line-height: 48px !important;
   font-size: 16px;
 }
+/* Layers button: Leaflet's own icon is dark grey; a light stacked-layers icon reads on the dark panel. */
+.leaflet-bar a.layers-toggle {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f4f5ee' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M12 3 2 8l10 5 10-5z'/%3E%3Cpath d='m2 13 10 5 10-5'/%3E%3C/svg%3E");
+  background-size: 28px;
+}
+
 /* Clear the home bar / rounded corners on notched phones. */
 .leaflet-bottom {
   margin-bottom: env(safe-area-inset-bottom);

@@ -1,11 +1,13 @@
 <script lang="ts">
   import type L from 'leaflet';
   import { createMap } from './map.ts';
+  import MapLayers from './MapLayers.svelte';
 
   let { map = $bindable() }: { map?: L.Map } = $props();
+  let layersOpen = $state(false);
 
   function mount(el: HTMLElement) {
-    const created = createMap(el);
+    const created = createMap(el, () => (layersOpen = true));
     map = created;
     return () => {
       map = undefined;
@@ -17,3 +19,6 @@
 </script>
 
 <div {@attach mount} class="absolute inset-0" data-testid="map"></div>
+{#if map}
+  <MapLayers {map} bind:open={layersOpen} />
+{/if}
