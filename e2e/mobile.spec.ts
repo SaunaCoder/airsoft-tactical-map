@@ -57,9 +57,10 @@ test('every touch target is at least 48x48 px', async ({ browser }) => {
   await leader.getByTestId('map').click({ position: { x: 100, y: 600 } });
   await leader.getByTitle('Draw Marker').click();
   expect(await smallTouchTargets(leader), 'room map (leader)').toEqual([]);
-  await leader.getByRole('button', { name: 'Layers' }).tap();
+  await leader.getByRole('button', { name: 'Map layers' }).tap();
   await expect(leader.getByRole('radio', { name: 'Photo (EE)' })).toBeVisible();
-  expect(await smallTouchTargets(leader), 'layer switcher').toEqual([]);
+  expect(await smallTouchTargets(leader), 'map layers sheet').toEqual([]);
+  await leader.getByRole('button', { name: 'Close map layers' }).click({ position: { x: 200, y: 100 } });
   await openTeam(leader);
   await leader.getByRole('button', { name: 'Show QR code' }).click();
   await expect(leader.getByRole('region', { name: 'Load a template' })).toContainText('Field A');
