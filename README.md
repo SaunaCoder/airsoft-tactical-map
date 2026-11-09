@@ -26,6 +26,7 @@ This app is a web page: the leader creates a room, everyone scans a QR code, typ
 - **Templates.** Outline the game zone and points of interest at home, save the template, load it into a room on game day.
 - **Persistence.** Rooms and templates live in MongoDB. Anyone who (re)joins gets the current snapshot.
 - **Built for the field.** Full-screen map, every touch target at least 48 px (checked by an automated test), drawing tools and zoom in thumb reach at the bottom, bold name labels for sunlight, the screen kept on while in a room (a locked phone would stop sharing GPS), a visible "Offline" state with automatic reconnect, clear banners for denied or missing GPS.
+- **Map layers.** OpenStreetMap by default, plus Estonian Land Board (Maa- ja Ruumiamet) orthophotos, topographic map and a labels overlay for games in Estonia. The last choice is remembered on the device. See [Map layers](#map-layers).
 - **HTTPS deployment.** Docker Compose behind nginx with HTTPS, which browsers require for GPS.
 
 ## Architecture
@@ -42,7 +43,7 @@ flowchart LR
         server["server<br/>Express REST + Socket.IO"]
         db[("MongoDB<br/>rooms, templates")]
     end
-    osm["OpenStreetMap<br/>tile servers"]
+    osm["Tile servers<br/>OpenStreetMap, Estonian Land Board"]
     shared["packages/shared<br/>Zod schemas + event names"]
 
     gps --> ui
@@ -61,6 +62,22 @@ flowchart LR
 - **Server is the source of truth.** Every socket payload and request body is parsed with a shared Zod schema before use. Invalid input gets an `error` back to that client only; nothing is broadcast and nothing crashes. Permissions come from the socket session (set at join from the leader token), never from the payload.
 - **Clients render confirmed state only.** Even the leader's own drawing goes to the server and is drawn when `feature:added` comes back, so every screen shows the same thing.
 - **GeoJSON everywhere.** Drawings are GeoJSON Features with `[lng, lat]` coordinates. Conversion to Leaflet's `[lat, lng]` happens in one file at the map boundary.
+
+### Map layers
+
+The layer switcher (bottom right, above zoom) offers:
+
+| Layer | Source | Coverage |
+|---|---|---|
+| Map | OpenStreetMap | world |
+| Photo (EE) | Maa- ja Ruumiamet orthophoto | Estonia, about zoom 8-18 |
+| Topo (EE) | Maa- ja Ruumiamet base map | Estonia |
+| Labels (EE) | Maa- ja Ruumiamet hybrid overlay (roads, names) | Estonia, on top of any base layer |
+
+- **No API key.** The Land Board tiles are open data, so nothing goes into `.env` and nothing secret reaches the browser. The open data licence requires naming the source and the data's age, which the attribution line does ("Estonian Land Board <year>").
+- **Web Mercator, not L-EST97.** The Land Board's native projection is L-EST97 (EPSG:3301). Using it directly would need Proj4Leaflet, so the app uses the Land Board's Web Mercator (`@GMC`) tile set, which works with Leaflet as is. The trade-off is a little resampling and the Mercator scale distortion, which is negligible at field zoom levels.
+- **Zoom past the tiles.** The tiles stop at zoom 18 (OSM at 19). The map goes to 20 and upscales the last real tiles instead of showing grey.
+- Orthophoto tiles are heavier than OSM tiles, which matters on mobile data.
 
 ### Code organization: monorepo with vertical slices
 
@@ -206,7 +223,7 @@ To avoid the warning, mount a locally trusted certificate instead (e.g. made wit
 - **Unit tests (Vitest)**, next to the code: join code generation, leader token checks, join and reconnect logic, the room snapshot, the validated socket handler, a permission matrix for every drawing and template event (leader, member, not joined, invalid payload), position flood guard and send throttle, template owner scoping, GeoJSON drawing schemas and arrowhead geometry.
 - **End-to-end tests (Playwright)** on a Pixel 7 profile, with two or more browser contexts and mocked GPS: player joins by code and by QR, leader adds / moves / deletes drawings and players see it, live positions move on other screens, denied GPS, losing and regaining connection, templates prepared and loaded into a room, REST API validation and owner scoping, and an audit that every touch target on every screen is at least 48 px.
 
-The e2e suite blocks OpenStreetMap tile requests, so it doesn't depend on the internet or load their servers.
+The e2e suite blocks tile requests (OpenStreetMap and Land Board), so it doesn't depend on the internet or load their servers.
 
 ## Roadmap
 
