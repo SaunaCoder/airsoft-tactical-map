@@ -20,10 +20,10 @@
 
 <form class="flex w-full flex-col gap-3" onsubmit={submit}>
   <label class="flex flex-col gap-2">
-    <span class="text-neutral-300">Your name</span>
+    <span class="text-sm font-bold uppercase tracking-widest text-olive-400">Your name</span>
     <input
       bind:value={name}
-      class="min-h-14 rounded-xl border-2 border-neutral-700 bg-neutral-900 px-4 text-xl focus:border-amber-400 focus:outline-none"
+      class="min-h-14 border-2 border-olive-700 bg-olive-900 px-4 text-xl focus:border-lime-500 focus:outline-none"
       maxlength="24"
       autocomplete="nickname"
       aria-invalid={error !== ''}
@@ -32,7 +32,7 @@
   {#if error}
     <p role="alert" class="text-red-400">{error}</p>
   {/if}
-  <button type="submit" class="min-h-14 rounded-xl bg-amber-400 px-6 text-lg font-bold text-neutral-950 active:bg-amber-500">
+  <button type="submit" class="min-h-14 bg-lime-500 px-6 text-lg font-bold text-olive-950 uppercase tracking-wider active:bg-lime-600">
     Join
   </button>
 </form>

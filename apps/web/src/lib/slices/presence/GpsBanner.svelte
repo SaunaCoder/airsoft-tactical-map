@@ -13,5 +13,5 @@
 </script>
 
 {#if message}
-  <p role="status" class="rounded-xl bg-red-900/95 px-4 py-3 font-semibold text-white shadow-lg">{message}</p>
+  <p role="status" class="bg-red-900/95 px-4 py-3 font-semibold text-white shadow-lg">{message}</p>
 {/if}

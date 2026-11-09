@@ -22,22 +22,22 @@
 </script>
 
 <section class="flex flex-col gap-2" aria-label="Load a template">
-  <h3 class="text-lg font-bold">Load a template</h3>
+  <h3 class="text-sm font-bold uppercase tracking-widest text-olive-400">Load a template</h3>
   {#if error}
     <p role="alert" class="text-red-400">{error}</p>
   {:else if templates?.length === 0}
-    <p class="text-neutral-400">
-      No templates on this device yet. <a href={resolve('/templates')} class="text-amber-400 underline">Create one</a>.
+    <p class="text-olive-400">
+      No templates on this device yet. <a href={resolve('/templates')} class="text-lime-400 underline">Create one</a>.
     </p>
   {:else if templates}
     {#each templates as template (template.id)}
       <button
         type="button"
-        class="flex min-h-12 items-center justify-between rounded-xl bg-neutral-900 px-4 text-left text-lg active:bg-neutral-800"
+        class="flex min-h-12 items-center justify-between bg-olive-900 px-4 text-left text-lg active:bg-olive-800"
         onclick={() => load(template)}
       >
         <span>{template.name}</span>
-        <span class="font-bold text-amber-400">Load</span>
+        <span class="font-bold uppercase tracking-wider text-lime-400">Load</span>
       </button>
     {/each}
   {/if}

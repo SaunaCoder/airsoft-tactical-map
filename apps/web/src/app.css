@@ -2,10 +2,61 @@
 
 /* Mobile-first (CLAUDE.md): one hand, outdoors, maybe gloves. Every target is at least 48px. */
 
+/* Look: olive-tinted dark surfaces, lime as the signal colour, square corners everywhere. */
+
 html,
 body {
   /* No pull-to-refresh or bounce while panning the map. */
   overscroll-behavior: none;
+  background: var(--color-olive-950);
+}
+
+/* Leaflet + Geoman controls, restyled to match the app's square dark panels. */
+/* Prefixed with .leaflet-container: leaflet.css loads after this file, so equal specificity would lose. */
+.leaflet-container .leaflet-bar {
+  /* !important: leaflet.css's .leaflet-touch .leaflet-bar has the same specificity. */
+  border: 2px solid var(--color-olive-700) !important;
+  border-radius: 0;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.45);
+}
+.leaflet-touch .leaflet-bar a,
+.leaflet-pm-toolbar .button-container a.leaflet-buttons-control-button {
+  border-radius: 0 !important;
+  background-color: var(--color-olive-900);
+  border-bottom-color: var(--color-olive-700);
+  color: var(--color-olive-50);
+}
+.leaflet-container .leaflet-bar a:hover,
+.leaflet-container .leaflet-bar a:focus {
+  background-color: var(--color-olive-800);
+}
+/* Geoman's icons are grey-on-white; flip them to light-on-dark. */
+.leaflet-pm-toolbar .control-icon {
+  filter: invert(1) brightness(1.4);
+}
+.leaflet-pm-toolbar .button-container.active > a.leaflet-buttons-control-button {
+  background-color: var(--color-lime-500);
+  box-shadow: none;
+}
+.leaflet-pm-toolbar .button-container.active > a .control-icon {
+  filter: brightness(0.2);
+}
+.leaflet-container .button-container .leaflet-pm-actions-container .leaflet-pm-action {
+  border-radius: 0 !important;
+  background-color: var(--color-olive-900);
+  border-right-color: var(--color-olive-700);
+  font-weight: 700;
+}
+.leaflet-container .button-container .leaflet-pm-actions-container .leaflet-pm-action:hover,
+.leaflet-container .button-container .leaflet-pm-actions-container .leaflet-pm-action:focus {
+  background-color: var(--color-olive-800);
+}
+.leaflet-container .leaflet-control-attribution {
+  background: rgb(from var(--color-olive-950) r g b / 0.8);
+  color: var(--color-olive-300);
+}
+.leaflet-container .leaflet-control-attribution a {
+  color: var(--color-lime-400);
 }
 
 .leaflet-control-zoom a,
@@ -28,10 +79,18 @@ body {
 }
 
 /* Name labels on member dots: bigger and bolder than Leaflet's 12px default, for sunlight. */
-.leaflet-tooltip {
+.leaflet-container .leaflet-tooltip {
   font-size: 15px;
   font-weight: 700;
   padding: 2px 8px;
+  border: 1px solid var(--color-olive-700);
+  border-radius: 0;
+  background: var(--color-olive-900);
+  color: var(--color-olive-50);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.5);
+}
+.leaflet-container .leaflet-tooltip-top::before {
+  border-top-color: var(--color-olive-900);
 }
 
 /* Geoman vertex handles: 48px hit area around a visible 16px dot (Geoman draws 14px). */
@@ -46,7 +105,6 @@ body {
   content: '';
   position: absolute;
   inset: 16px;
-  border-radius: 50%;
   background: #fff;
   border: 3px solid #f59e0b;
 }
@@ -62,12 +120,11 @@ body {
   height: 26px;
   background: #f59e0b;
   border: 3px solid #fff;
-  border-radius: 4px;
   transform: rotate(45deg);
   box-shadow: 0 1px 4px rgb(0 0 0 / 0.5);
 }
 
-/* Arrow tool icon, drawn in Geoman's icon style (grey stroke on white). */
+/* Arrow tool icon, drawn in Geoman's icon style (grey stroke on white; inverted with the rest). */
 .arrow-icon {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235b5b5b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 19 19 5M10 5h9v9'/%3E%3C/svg%3E");
   background-repeat: no-repeat;

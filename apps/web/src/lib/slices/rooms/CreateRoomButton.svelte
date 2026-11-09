@@ -29,7 +29,7 @@
 
 <button
   type="button"
-  class="min-h-14 w-full rounded-xl bg-amber-400 px-6 text-lg font-bold text-neutral-950 active:bg-amber-500 disabled:opacity-60"
+  class="min-h-14 w-full bg-lime-500 px-6 text-lg font-bold text-olive-950 uppercase tracking-wider active:bg-lime-600 disabled:opacity-60"
   disabled={busy || !hydrated}
   onclick={create}
 >
