@@ -79,7 +79,7 @@
   }
 </script>
 
-<main class="fixed inset-0 bg-neutral-950 text-neutral-100">
+<main class="fixed inset-0 bg-olive-950 text-olive-50">
   <MapCanvas bind:map />
   {#if map}
     <DrawingLayer {map} {features} editable onedit={edit} onremove={remove} />
@@ -89,10 +89,10 @@
   <div
     class="pointer-events-none absolute inset-x-0 top-0 z-[1100] flex flex-col gap-2 p-3 pt-[max(0.75rem,env(safe-area-inset-top))]"
   >
-    <header class="pointer-events-auto flex items-center gap-2 rounded-xl bg-neutral-950/90 p-2 shadow-lg">
+    <header class="pointer-events-auto flex items-center gap-2 border border-olive-700 bg-olive-950/90 p-2 shadow-lg">
       <a
         href={resolve('/templates')}
-        class="flex min-h-12 min-w-12 items-center justify-center rounded-lg text-2xl active:bg-neutral-800"
+        class="flex min-h-12 min-w-12 items-center justify-center text-2xl active:bg-olive-800"
         aria-label="Back to templates">&larr;</a
       >
       <input
@@ -100,11 +100,11 @@
         placeholder="Template name"
         aria-label="Template name"
         maxlength="60"
-        class="min-h-12 min-w-0 flex-1 rounded-lg border-2 border-neutral-700 bg-neutral-900 px-3 text-lg focus:border-amber-400 focus:outline-none"
+        class="min-h-12 min-w-0 flex-1 border-2 border-olive-700 bg-olive-900 px-3 text-lg focus:border-accent-500 focus:outline-none"
       />
       <button
         type="button"
-        class="min-h-12 rounded-lg bg-amber-400 px-5 text-lg font-bold text-neutral-950 active:bg-amber-500 disabled:opacity-60"
+        class="min-h-12 bg-accent-500 px-5 text-lg font-bold text-olive-950 uppercase tracking-wider active:bg-accent-600 disabled:opacity-60"
         disabled={saving}
         onclick={save}
       >
@@ -115,8 +115,8 @@
       <p
         role={status.ok ? 'status' : 'alert'}
         class={[
-          'pointer-events-auto self-start rounded-xl px-4 py-2 font-semibold shadow-lg',
-          status.ok ? 'bg-green-800 text-white' : 'bg-red-900/95 text-white',
+          'pointer-events-auto self-start px-4 py-2 font-semibold shadow-lg',
+          status.ok ? 'bg-accent-500 text-olive-950' : 'bg-red-900/95 text-white',
         ]}
       >
         {status.text}

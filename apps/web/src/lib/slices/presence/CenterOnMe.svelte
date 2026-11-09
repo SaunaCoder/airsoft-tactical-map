@@ -8,10 +8,14 @@
 
 <button
   type="button"
-  class="size-14 rounded-full bg-neutral-950 text-2xl text-white shadow-lg active:bg-neutral-800 disabled:opacity-50"
+  class="flex size-14 items-center justify-center border-2 border-olive-700 bg-olive-950/90 text-accent-400 shadow-lg active:bg-olive-800 disabled:text-olive-500"
   aria-label="Center on me"
   disabled={!position}
   onclick={() => position && map.setView(toLatLng(position), Math.max(map.getZoom(), FIELD_ZOOM))}
 >
-  ◎
+  <!-- Crosshair -->
+  <svg viewBox="0 0 24 24" class="size-8" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+    <circle cx="12" cy="12" r="7" />
+    <path d="M12 1v6M12 17v6M1 12h6M17 12h6" />
+  </svg>
 </button>

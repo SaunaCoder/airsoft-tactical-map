@@ -16,7 +16,7 @@
 
 <button
   type="button"
-  class="min-h-12 w-full rounded-xl border-2 border-neutral-700 px-6 text-lg font-bold active:bg-neutral-800"
+  class="min-h-12 w-full border-2 border-olive-700 px-6 text-lg font-bold uppercase tracking-wider active:bg-olive-800"
   aria-expanded={open}
   onclick={() => (open = !open)}
 >
@@ -26,13 +26,13 @@
 {#if open}
   <figure class="flex w-full flex-col items-center gap-2">
     {#await qrDataUrl(url)}
-      <div class="aspect-square w-full max-w-xs rounded-xl bg-neutral-800"></div>
+      <div class="aspect-square w-full max-w-xs bg-olive-800"></div>
     {:then src}
       <!-- White quiet zone is part of the PNG, so it scans on the dark page. -->
-      <img {src} alt="QR code to join room {code}" data-url={url} class="aspect-square w-full max-w-xs rounded-xl" />
+      <img {src} alt="QR code to join room {code}" data-url={url} class="aspect-square w-full max-w-xs" />
     {:catch}
       <p role="alert" class="text-red-400">Could not draw the QR code. Share the link below.</p>
     {/await}
-    <figcaption class="break-all text-center text-neutral-400">{url}</figcaption>
+    <figcaption class="break-all text-center text-olive-400">{url}</figcaption>
   </figure>
 {/if}

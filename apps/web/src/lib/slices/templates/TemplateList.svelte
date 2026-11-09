@@ -28,7 +28,7 @@
 
 <a
   href={resolve('/templates/[id]', { id: 'new' })}
-  class="flex min-h-14 items-center justify-center rounded-xl bg-amber-400 px-6 text-lg font-bold text-neutral-950 active:bg-amber-500"
+  class="flex min-h-14 items-center justify-center bg-accent-500 px-6 text-lg font-bold text-olive-950 uppercase tracking-wider active:bg-accent-600"
 >
   New template
 </a>
@@ -38,22 +38,22 @@
 {/if}
 
 {#if templates === null && !error}
-  <p class="text-neutral-400">Loading...</p>
+  <p class="text-olive-400">Loading...</p>
 {:else if templates?.length === 0}
-  <p class="text-neutral-400">
+  <p class="text-olive-400">
     No templates yet. Outline the game zone and points of interest before the game, then load it into a room.
   </p>
 {:else if templates}
   <ul class="flex flex-col gap-2" aria-label="Templates">
     {#each templates as template (template.id)}
-      <li class="flex items-center gap-2 rounded-xl bg-neutral-900 p-2 pl-4">
+      <li class="flex items-center gap-2 bg-olive-900 p-2 pl-4">
         <a href={resolve('/templates/[id]', { id: template.id })} class="flex min-h-12 flex-1 flex-col justify-center">
           <span class="text-lg">{template.name}</span>
-          <span class="text-sm text-neutral-400">{new Date(template.updatedAt).toLocaleString()}</span>
+          <span class="text-sm text-olive-400">{new Date(template.updatedAt).toLocaleString()}</span>
         </a>
         <button
           type="button"
-          class="min-h-12 rounded-lg px-4 text-red-400 active:bg-neutral-800"
+          class="min-h-12 px-4 font-bold uppercase tracking-wider text-red-400 active:bg-olive-800"
           aria-label="Delete {template.name}"
           onclick={() => remove(template)}
         >

@@ -24,10 +24,10 @@
 
 <form class="flex flex-col gap-3" onsubmit={submit}>
   <label class="flex flex-col gap-2">
-    <span class="text-neutral-300">Join code</span>
+    <span class="text-sm font-bold uppercase tracking-widest text-olive-400">Join code</span>
     <input
       bind:value={code}
-      class="min-h-14 rounded-xl border-2 border-neutral-700 bg-neutral-900 px-4 text-center font-mono text-2xl uppercase tracking-widest focus:border-amber-400 focus:outline-none"
+      class="min-h-14 border-2 border-olive-700 bg-olive-900 px-4 text-center font-mono text-2xl uppercase tracking-widest focus:border-accent-500 focus:outline-none"
       maxlength="6"
       autocomplete="off"
       autocapitalize="characters"
@@ -40,7 +40,7 @@
   {/if}
   <button
     type="submit"
-    class="min-h-14 rounded-xl border-2 border-amber-400 px-6 text-lg font-bold text-amber-400 active:bg-amber-400/10 disabled:opacity-60"
+    class="min-h-14 border-2 border-accent-500 px-6 text-lg font-bold text-accent-400 uppercase tracking-wider active:bg-accent-500/10 disabled:opacity-60"
     disabled={!hydrated}
   >
     Join room
