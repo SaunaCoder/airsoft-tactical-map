@@ -19,6 +19,8 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          # Its auto pnpm cache needs pnpm before corepack enables it.
+          package-manager-cache: false
       # pnpm version comes from `packageManager` in package.json.
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
@@ -34,6 +36,8 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          # Its auto pnpm cache needs pnpm before corepack enables it.
+          package-manager-cache: false
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
