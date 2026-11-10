@@ -26,7 +26,7 @@ This app is a web page: the leader creates a room, everyone scans a QR code, typ
 - **Leader drawing tools.** Markers, lines, arrows and zones (polygons); move, reshape and delete them. Changes reach every member instantly.
 - **Server-enforced roles.** Only the leader's session can change drawings. Members don't get the toolbar, but the server rejects their drawing events either way.
 - **Templates.** Outline the game zone and points of interest at home, save the template, load it into a room on game day.
-- **Persistence.** Rooms and templates live in MongoDB. Anyone who (re)joins gets the current snapshot.
+- **Persistence.** Rooms and templates live in MongoDB. Anyone who (re)joins gets the current snapshot. Rooms are deleted automatically 24 hours after their last activity (join, position update or drawing change, configurable with `ROOM_TTL_HOURS`) by a MongoDB TTL index.
 - **Built for the field.** Full-screen map, every touch target at least 48 px (checked by an automated test), drawing tools and zoom in thumb reach at the bottom, bold name labels for sunlight, the screen kept on while in a room (a locked phone would stop sharing GPS), a visible "Offline" state with automatic reconnect, clear banners for denied or missing GPS.
 - **Map layers.** Estonian Land Board (Maa- ja Ruumiamet) orthophotos by default, plus its topographic map, a labels overlay, and OpenStreetMap ("World Simple") for games outside Estonia. Picked from a bottom sheet; the last choice is remembered on the device. See [Map layers](#map-layers).
 - **HTTPS deployment.** Docker Compose behind nginx with HTTPS, which browsers require for GPS.
@@ -223,7 +223,7 @@ To avoid the warning, mount a locally trusted certificate instead (e.g. made wit
 
 ## Testing
 
-- **Unit tests (Vitest)**, next to the code: join code generation, leader token checks, join and reconnect logic, the room snapshot, the validated socket handler, a permission matrix for every drawing and template event (leader, member, not joined, invalid payload), position flood guard and send throttle, template owner scoping, GeoJSON drawing schemas and arrowhead geometry.
+- **Unit tests (Vitest)**, next to the code: join code generation, leader token checks, join and reconnect logic, the room snapshot, room expiry, the validated socket handler, a permission matrix for every drawing and template event (leader, member, not joined, invalid payload), position flood guard and send throttle, template owner scoping, GeoJSON drawing schemas and arrowhead geometry.
 - **End-to-end tests (Playwright)** on a Pixel 7 profile, with two or more browser contexts and mocked GPS: player joins by code and by QR, leader adds / moves / deletes drawings and players see it, live positions move on other screens, denied GPS, losing and regaining connection, templates prepared and loaded into a room, REST API validation and owner scoping, and an audit that every touch target on every screen is at least 48 px.
 
 The e2e suite blocks tile requests (OpenStreetMap and Land Board), so it doesn't depend on the internet or load their servers.
@@ -232,4 +232,4 @@ GitHub Actions ([ci.yml](.github/workflows/ci.yml)) runs lint, typecheck and uni
 
 ## Roadmap
 
-Next up (P1): GPS smoothing and movement-based sending, a member list with "last seen", undo and clear, automatic room expiry, and a GraphQL API for templates (the REST routes already sit on a transport-agnostic service). Later: Prometheus metrics, MapLibre GL, offline map tiles, template export / import as GeoJSON, and teams inside a room.
+Next up (P1): GPS smoothing and movement-based sending, a member list with "last seen", undo and clear, and a GraphQL API for templates (the REST routes already sit on a transport-agnostic service). Later: Prometheus metrics, MapLibre GL, offline map tiles, template export / import as GeoJSON, and teams inside a room.

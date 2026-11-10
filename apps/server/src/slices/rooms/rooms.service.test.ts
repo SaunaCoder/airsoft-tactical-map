@@ -6,6 +6,7 @@ import {
   generateJoinCode,
   generateLeaderToken,
   hashLeaderToken,
+  nextExpiry,
   planJoin,
   verifyLeaderToken,
   type InsertRoom,
@@ -127,5 +128,13 @@ describe('buildRoomState', () => {
       ],
       features: { type: 'FeatureCollection', features: [marker] },
     });
+  });
+});
+
+describe('nextExpiry', () => {
+  it('expires the room ttlHours after the activity', () => {
+    const now = new Date('2026-05-01T10:00:00Z');
+    expect(nextExpiry(now, 24).toISOString()).toBe('2026-05-02T10:00:00.000Z');
+    expect(nextExpiry(now, 0.5).toISOString()).toBe('2026-05-01T10:30:00.000Z');
   });
 });

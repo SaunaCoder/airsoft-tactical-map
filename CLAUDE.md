@@ -175,7 +175,7 @@ Room {
   members: [{ id, name, lastPosition, lastSeen }]
   features: Feature[]           // stored as an array (max 500), sent as a FeatureCollection in room:state
   createdAt: Date
-  expiresAt: Date              // TTL index (P1)
+  expiresAt: Date              // TTL index; now + ROOM_TTL_HOURS (default 24), pushed forward by every room write
 }
 
 Template {
