@@ -23,6 +23,7 @@ This app is a web page: the leader creates a room, everyone scans a QR code, typ
 - **Rooms without accounts.** Anyone can create a room and becomes its leader. The room gets a 6-character join code without ambiguous characters (no `0/O`, `1/I/L`), and the leader's device keeps a secret leader token.
 - **Join by code or QR.** Players type the code or scan the leader's QR code with the phone camera, then pick a display name. Reloads and reconnects resume the same member.
 - **Live positions.** Each member shares browser GPS. Everyone sees everyone on the map with name labels, live members in green, dropped-out members greyed out at their last known position.
+- **Member list with last seen.** The Team sheet lists dropped-out members first with "last seen 3 min ago", and the Team button shows how many are offline, so the leader notices right away.
 - **Leader drawing tools.** Markers, lines, arrows and zones (polygons); move, reshape and delete them. Changes reach every member instantly.
 - **Server-enforced roles.** Only the leader's session can change drawings. Members don't get the toolbar, but the server rejects their drawing events either way.
 - **Templates.** Outline the game zone and points of interest at home, save the template, load it into a room on game day.
@@ -151,7 +152,7 @@ sequenceDiagram
 | Leader | `feature:delete` | `{ id }` | Removes it, sends `feature:deleted` to the whole room. |
 | Leader | `template:load` | `{ templateId, ownerKey }` | Appends the template's drawings with fresh ids, one `feature:added` each. |
 | Server | `room:state` | `{ code, memberId, isLeader, members, features }` | Full snapshot for the joining client. |
-| Server | `member:joined` / `member:left` | member / `{ memberId }` | Someone joined or their last connection dropped. |
+| Server | `member:joined` / `member:left` | member / `{ memberId, lastSeen }` | Someone joined or their last connection dropped. |
 | Server | `error` | `{ event, message }` | Only to the client whose event failed (invalid payload, not the leader, room not found). |
 
 Event names and payload schemas are defined once in [`packages/shared`](packages/shared/src) and imported by both apps.
@@ -223,7 +224,7 @@ To avoid the warning, mount a locally trusted certificate instead (e.g. made wit
 
 ## Testing
 
-- **Unit tests (Vitest)**, next to the code: join code generation, leader token checks, join and reconnect logic, the room snapshot, room expiry, the validated socket handler, a permission matrix for every drawing and template event (leader, member, not joined, invalid payload), position flood guard and send throttle, template owner scoping, GeoJSON drawing schemas and arrowhead geometry.
+- **Unit tests (Vitest)**, next to the code: join code generation, leader token checks, join and reconnect logic, the room snapshot, room expiry, the validated socket handler, a permission matrix for every drawing and template event (leader, member, not joined, invalid payload), position flood guard and send throttle, "last seen" labels and member ordering, template owner scoping, GeoJSON drawing schemas and arrowhead geometry.
 - **End-to-end tests (Playwright)** on a Pixel 7 profile, with two or more browser contexts and mocked GPS: player joins by code and by QR, leader adds / moves / deletes drawings and players see it, live positions move on other screens, denied GPS, losing and regaining connection, templates prepared and loaded into a room, REST API validation and owner scoping, and an audit that every touch target on every screen is at least 48 px.
 
 The e2e suite blocks tile requests (OpenStreetMap and Land Board), so it doesn't depend on the internet or load their servers.
@@ -232,4 +233,4 @@ GitHub Actions ([ci.yml](.github/workflows/ci.yml)) runs lint, typecheck and uni
 
 ## Roadmap
 
-Next up (P1): GPS smoothing and movement-based sending, a member list with "last seen", undo and clear, and a GraphQL API for templates (the REST routes already sit on a transport-agnostic service). Later: Prometheus metrics, MapLibre GL, offline map tiles, template export / import as GeoJSON, and teams inside a room.
+Next up (P1): GPS smoothing and movement-based sending, undo and clear, and a GraphQL API for templates (the REST routes already sit on a transport-agnostic service). Later: Prometheus metrics, MapLibre GL, offline map tiles, template export / import as GeoJSON, and teams inside a room.

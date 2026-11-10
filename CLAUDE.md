@@ -212,8 +212,8 @@ Template requests need the `x-owner-key` header (`401` without it). Errors are `
 | Client -> Server | `feature:delete` | leader only. `{ id }` |
 | Client -> Server | `template:load` | leader only. `{ templateId, ownerKey }`. Appends the template's features to the room with fresh ids, then `feature:added` per feature |
 | Server -> Client | `room:state` | full snapshot to the joining client, sent on join and reconnect |
-| Server -> Client | `member:joined` | `{ id, name, online, position }` to the others; also on reconnect, so renames propagate |
-| Server -> Client | `member:left` | `{ memberId }` once the member's last socket disconnects |
+| Server -> Client | `member:joined` | `{ id, name, online, position, lastSeen }` to the others; also on reconnect, so renames propagate |
+| Server -> Client | `member:left` | `{ memberId, lastSeen }` once the member's last socket disconnects |
 | Server -> Client | `position:updated` | `{ memberId, position }` to the others (sender shows its own fix locally) |
 | Server -> Client | `feature:added` | Feature with server id, to the whole room incl. the leader (clients render only confirmed state) |
 | Server -> Client | `feature:updated` | Feature, to the whole room |
