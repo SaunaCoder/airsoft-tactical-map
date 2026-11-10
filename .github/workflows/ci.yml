@@ -8,12 +8,10 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-# Runners pinned to Ubuntu 24.04: MongoDB 8 refuses to start on Linux kernel 6.19+ (SERVER-121912),
-# which ubuntu-latest (Ubuntu 26) ships. Move to ubuntu-latest once a MongoDB release supports it.
 jobs:
   check:
     name: Lint, typecheck, unit tests
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -30,7 +28,11 @@ jobs:
 
   e2e:
     name: End-to-end tests
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    env:
+      # mongo:8 (8.0) and 8.3 refuse to start on the runner's Linux 7.0 kernel (SERVER-121912);
+      # 8.2 is the closest release to production's 8.0 that does. Drop once mongo:8 starts again.
+      MONGO_TAG: '8.2'
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5

@@ -2,7 +2,8 @@
 # `pnpm dev` and the e2e tests start only the `mongo` service from this file.
 services:
   mongo:
-    image: mongo:8
+    # MONGO_TAG is overridden in CI (see .github/workflows/ci.yml).
+    image: mongo:${MONGO_TAG:-8}
     ports:
       - "27017:27017" # for `pnpm dev`, which runs the server on the host
     volumes:
