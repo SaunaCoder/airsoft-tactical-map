@@ -52,6 +52,7 @@
 {#if session?.state && sharing}
   {@const state = session.state}
   {@const current = session}
+  {@const offline = state.members.filter((m) => !m.online).length}
   <main class="fixed inset-0 bg-olive-950 text-olive-50">
     <MapCanvas bind:map />
     {#if map}
@@ -86,6 +87,9 @@
           onclick={() => (teamOpen = !teamOpen)}
         >
           Team
+          {#if offline > 0}
+            <span class="ml-1 bg-red-600 px-2 text-white" aria-label="{offline} offline">{offline}</span>
+          {/if}
         </button>
       </header>
       <ConnectionBanner joined={session.joined} />

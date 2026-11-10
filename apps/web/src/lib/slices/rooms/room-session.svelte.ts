@@ -50,9 +50,11 @@ export class RoomSession {
       this.state.members = [...members, member];
     });
 
-    this.socket.on(Events.memberLeft, ({ memberId }) => {
+    this.socket.on(Events.memberLeft, ({ memberId, lastSeen }) => {
       const member = this.state?.members.find((m) => m.id === memberId);
-      if (member) member.online = false;
+      if (!member) return;
+      member.online = false;
+      member.lastSeen = lastSeen;
     });
 
     this.socket.on(Events.error, ({ message }) => this.#showError(message));

@@ -15,9 +15,12 @@ test('a player who loses connection sees "Offline" and catches up after reconnec
   await expect(player.getByText('Offline')).toBeVisible();
   // With the network gone, the server only learns about it from the missed heartbeat (10 s + 5 s).
   await openTeam(leader);
-  await expect(leaderMembers.getByRole('listitem').filter({ hasText: 'Bravo' }).getByLabel('offline')).toBeVisible({
-    timeout: 20_000,
-  });
+  const bravo = leaderMembers.getByRole('listitem').filter({ hasText: 'Bravo' });
+  await expect(bravo.getByLabel('offline')).toBeVisible({ timeout: 20_000 });
+  await expect(bravo).toContainText('Last seen just now');
+  // Drop-outs are listed first and counted on the Team button.
+  await expect(leaderMembers.getByRole('listitem').first()).toContainText('Bravo');
+  await expect(leader.getByLabel('1 offline')).toBeVisible();
   await leader.getByRole('button', { name: 'Close' }).click();
 
   // The game goes on while the player is offline.
@@ -30,6 +33,7 @@ test('a player who loses connection sees "Offline" and catches up after reconnec
   await expect(player.locator('.drawing-marker')).toHaveCount(1); // from the fresh room:state
   await openTeam(leader);
   await expect(leaderMembers.getByRole('listitem').filter({ hasText: 'Bravo' }).getByLabel('online')).toBeVisible();
+  await expect(leader.getByLabel('1 offline')).toBeHidden();
 });
 
 test('the leader cannot draw while offline, and can again after reconnecting', async ({ browser }) => {
