@@ -13,7 +13,6 @@ function smallTouchTargets(page: Page): Promise<string[]> {
       'input',
       '[role="button"]',
       '.leaflet-buttons-control-button',
-      '.leaflet-pm-action',
       '.leaflet-marker-icon.leaflet-interactive',
     ].join(',');
     return [...document.querySelectorAll<HTMLElement>(selector)].flatMap((el) => {
@@ -37,7 +36,7 @@ test('every touch target is at least 48x48 px', async ({ browser }) => {
   await expect(leader.getByRole('button', { name: 'Create room' })).toBeEnabled();
   expect(await smallTouchTargets(leader), 'home').toEqual([]);
 
-  // Template list with an item, and the editor mid-drawing (Geoman's Finish/Cancel actions visible).
+  // Template list with an item, and the editor mid-drawing (Undo button visible).
   await leader.goto('/templates/new');
   await leader.getByLabel('Template name').fill('Field A');
   await leader.getByTitle('Draw Marker').click();

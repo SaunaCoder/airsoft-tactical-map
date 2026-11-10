@@ -69,11 +69,37 @@ test('leader draws a zone and an arrow', async ({ browser }) => {
   await expect(player.locator('path.drawing-zone')).toHaveCount(1);
 
   await leader.getByTitle('Draw Arrow').click();
-  // Below Geoman's Finish / Cancel row, which opens left of the Arrow button (around y 590-640).
   await tap(leader, 80, 720);
   await tap(leader, 300, 680);
   await tap(leader, 300, 680); // tap the last vertex to finish
   await expect(player.locator('path.drawing-arrow')).toHaveCount(2); // shaft + head
+});
+
+test('leader undoes a point and re-taps the line tool to save the line', async ({ browser }) => {
+  const { leader, player } = await leaderAndPlayer(browser);
+  const lineTool = leader.getByTitle('Draw Polyline');
+  const undo = leader.getByRole('button', { name: 'Undo last point' });
+  await expect(undo).toHaveCount(0);
+
+  await lineTool.click();
+  await tap(leader, 80, 300);
+  await tap(leader, 300, 300);
+  await tap(leader, 300, 500);
+  await undo.click();
+  await lineTool.click(); // re-tap saves instead of discarding
+  await expect(player.locator('path.drawing-line')).toHaveCount(1);
+  await expect(undo).toHaveCount(0);
+
+  // The undone point is gone: the line is the first two taps only.
+  const line = (await player.locator('path.drawing-line').boundingBox())!;
+  expect(line.height).toBeLessThan(20);
+
+  // Re-tapping with fewer than two points just turns the tool off, nothing is sent.
+  await lineTool.click();
+  await tap(leader, 80, 600);
+  await lineTool.click();
+  await expect(lineTool).not.toHaveClass(/active/); // Geoman puts the title on the button container
+  await expect(player.locator('path.drawing-line')).toHaveCount(1);
 });
 
 test('members get no drawing tools', async ({ browser }) => {

@@ -48,16 +48,6 @@ body {
 .leaflet-pm-toolbar .button-container.active > a .control-icon {
   filter: brightness(0.2);
 }
-.leaflet-container .button-container .leaflet-pm-actions-container .leaflet-pm-action {
-  border-radius: 0 !important;
-  background-color: var(--color-olive-900);
-  border-right-color: var(--color-olive-700);
-  font-weight: 700;
-}
-.leaflet-container .button-container .leaflet-pm-actions-container .leaflet-pm-action:hover,
-.leaflet-container .button-container .leaflet-pm-actions-container .leaflet-pm-action:focus {
-  background-color: var(--color-olive-800);
-}
 .leaflet-container .leaflet-control-attribution {
   background: rgb(from var(--color-olive-950) r g b / 0.8);
   color: var(--color-olive-300);
@@ -72,11 +62,6 @@ body {
   width: 48px !important;
   height: 48px !important;
   line-height: 48px !important;
-}
-.leaflet-pm-toolbar .leaflet-pm-action {
-  height: 48px !important;
-  line-height: 48px !important;
-  font-size: 16px;
 }
 /* Layers button: Leaflet's own icon is dark grey; a light stacked-layers icon reads on the dark panel. */
 .leaflet-bar a.layers-toggle {
