@@ -178,9 +178,19 @@ Work in priority order. Do not start P1 items until all P0 items are done, unles
 
 1. **Monitoring.** Prometheus metrics (active rooms, connected members, events per second) with a Grafana dashboard.
 2. **MapLibre GL** as an alternative map engine. Keep map code behind a thin adapter in `web/src/lib/core` so this is possible.
-3. **Offline map tiles** for areas with weak signal.
+3. **Offline map tiles** for areas with weak signal. Candidate to move up: "works where mobile signal does not" is a strong point for field use, and orthophoto tiles are heavy on mobile data.
 4. **Export and import templates** as GeoJSON files.
 5. **Teams inside a room** (e.g. color groups).
+
+### P3 - Ideas
+
+Not planned yet. Pick one up only after deciding it is worth it.
+
+1. **MGRS coordinates.** Show your own position and a tapped point as an MGRS grid reference (e.g. `35V MF 12345 67890`), the format military navigation uses instead of lat/lng. Either the `mgrs` npm package (new library - needs approval) or a ~100 line lat/lng -> UTM -> MGRS conversion in pure functions, with Vitest tests against known reference points.
+2. **Night mode.** A dimmed or red-tinted map so the screen does not ruin night vision or give away positions in the dark. CSS filters on the tile layer plus a dark UI theme.
+3. **README: be accurate about security.** No accounts was a UX decision (create a room and go), not a security one - say so.
+   - Deliberate security work that can honestly be claimed: leader token from a cryptographically secure RNG, stored only as a hash, timing-safe comparison; permissions enforced on the server (leader UI hiding is cosmetic); every socket event and API body validated with Zod, invalid payloads rejected without crashing or broadcasting; as a side effect of no accounts, almost no personal data is stored and rooms expire.
+   - Known limitations to list openly (or fix): anyone with the 6 character room code can join and see everyone's live positions; no rate limiting on room joins or creation, so join codes could be brute forced in principle; positions are protected in transit by HTTPS only, the server sees and stores everything in plain form.
 
 ### Out of scope
 
