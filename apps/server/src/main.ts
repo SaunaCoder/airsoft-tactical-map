@@ -7,7 +7,7 @@ import { errorHandler } from './core/http.ts';
 import { createSocketServer } from './core/socket.ts';
 import { registerDrawingHandlers } from './slices/drawings/index.ts';
 import { registerPresenceHandlers } from './slices/presence/index.ts';
-import { registerRoomHandlers, roomsRouter } from './slices/rooms/index.ts';
+import { backfillRoomExpiry, registerRoomHandlers, roomsRouter } from './slices/rooms/index.ts';
 import { registerTemplateHandlers, templatesRouter } from './slices/templates/index.ts';
 
 const app = express();
@@ -21,6 +21,7 @@ app.use('/api/templates', templatesRouter);
 app.use(errorHandler);
 
 await mongoose.connect(config.MONGO_URL, { serverSelectionTimeoutMS: 5000 });
+await backfillRoomExpiry();
 
 const httpServer = app.listen(config.PORT, () => {
   console.log(`server listening on http://localhost:${config.PORT}`);

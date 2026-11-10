@@ -8,12 +8,18 @@ import {
   type RoomJoin,
   type RoomState,
 } from '@airsoft/shared';
+import { config } from '../../core/config.ts';
 import { sha256Hex } from '../../core/secrets.ts';
 
 export function generateJoinCode(pick: (max: number) => number = randomInt): string {
   let code = '';
   for (let i = 0; i < JOIN_CODE_LENGTH; i++) code += JOIN_CODE_ALPHABET[pick(JOIN_CODE_ALPHABET.length)];
   return code;
+}
+
+/** When a room active at `now` expires. Every room write pushes it forward; MongoDB's TTL index deletes the room. */
+export function nextExpiry(now: Date, ttlHours = config.ROOM_TTL_HOURS): Date {
+  return new Date(now.getTime() + ttlHours * 3_600_000);
 }
 
 export const hashLeaderToken = sha256Hex;
