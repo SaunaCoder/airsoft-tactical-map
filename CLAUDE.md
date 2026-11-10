@@ -150,47 +150,14 @@ Rules:
 
 Work in priority order. Do not start P1 items until all P0 items are done, unless explicitly asked.
 
-### P0 - Must have (MVP)
+Requirements live in [`docs/requirements/`](docs/requirements/), one file per priority:
 
-1. **Create a room.** Anyone can create a room and becomes its leader. The room gets a short random join code (6 characters) and a leader token stored on the leader's device.
-2. **Join a room.** Players join by entering the code or scanning a QR code. A player only needs a display name, no account.
-3. **Live positions.** Each member shares their GPS position through the browser Geolocation API. All members see everyone on the map in real time, with name labels.
-4. **Leader drawing tools.** The leader can add markers, draw lines/arrows and polygons (zones), and delete them. Changes are broadcast to all members instantly.
-5. **Roles.** Only the leader can draw or edit. Members have view-only access to drawings. The server enforces this, not just the UI.
-6. **Templates.** The leader can prepare a template before the game: outline the game zone, add points of interest, save it, and later load it into a room.
-7. **Persistence.** Rooms and templates are stored in MongoDB. A player who reconnects gets the current room state.
-8. **Mobile-first UI.** Works one-handed on a phone in the field: large buttons, a full-screen map, minimal menus.
-9. **HTTPS deployment.** Deployed with Docker on Hetzner behind nginx with HTTPS. Browsers require HTTPS for geolocation.
-10. **Validation and failure handling.** All incoming socket events and API requests are validated with Zod. Handle lost connection (auto-reconnect, visible "offline" state) and denied or unavailable GPS.
-11. **Tests.** Unit tests for room and permission logic. At least two Playwright end-to-end tests: "leader adds a marker, player sees it" and "player joins by code".
-12. **README.** Problem, features, architecture diagram, data flow (who sends what, through which event), how to run locally.
+- [P0 - Must have (MVP)](docs/requirements/P0.md)
+- [P1 - Should have](docs/requirements/P1.md)
+- [P2 - Nice to have](docs/requirements/P2.md)
+- [P3 - Ideas](docs/requirements/P3.md)
 
-### P1 - Should have
-
-1. **GPS smoothing and throttling.** Send positions at a sensible interval (every 3-5 seconds or after meaningful movement) and smooth jumpy readings.
-2. **Member list.** Shows who's in the room, with a "last seen" time, so the leader notices when someone drops out.
-3. **Undo and clear.** The leader can undo the last change or clear all drawings.
-4. **Room expiry.** Inactive rooms expire automatically (MongoDB TTL index on `expiresAt`).
-5. **CI.** GitHub Actions runs linting and tests on every push.
-6. **GraphQL API for templates.** Create, read, update and delete templates through GraphQL instead of REST. Build P0 templates over REST behind a service layer so this swap only replaces the transport.
-
-### P2 - Nice to have
-
-1. **Monitoring.** Prometheus metrics (active rooms, connected members, events per second) with a Grafana dashboard.
-2. **MapLibre GL** as an alternative map engine. Keep map code behind a thin adapter in `web/src/lib/core` so this is possible.
-3. **Offline map tiles** for areas with weak signal. Candidate to move up: "works where mobile signal does not" is a strong point for field use, and orthophoto tiles are heavy on mobile data.
-4. **Export and import templates** as GeoJSON files.
-5. **Teams inside a room** (e.g. color groups).
-
-### P3 - Ideas
-
-Not planned yet. Pick one up only after deciding it is worth it.
-
-1. **MGRS coordinates.** Show your own position and a tapped point as an MGRS grid reference (e.g. `35V MF 12345 67890`), the format military navigation uses instead of lat/lng. Either the `mgrs` npm package (new library - needs approval) or a ~100 line lat/lng -> UTM -> MGRS conversion in pure functions, with Vitest tests against known reference points.
-2. **Night mode.** A dimmed or red-tinted map so the screen does not ruin night vision or give away positions in the dark. CSS filters on the tile layer plus a dark UI theme.
-3. **README: be accurate about security.** No accounts was a UX decision (create a room and go), not a security one - say so.
-   - Deliberate security work that can honestly be claimed: leader token from a cryptographically secure RNG, stored only as a hash, timing-safe comparison; permissions enforced on the server (leader UI hiding is cosmetic); every socket event and API body validated with Zod, invalid payloads rejected without crashing or broadcasting; as a side effect of no accounts, almost no personal data is stored and rooms expire.
-   - Known limitations to list openly (or fix): anyone with the 6 character room code can join and see everyone's live positions; no rate limiting on room joins or creation, so join codes could be brute forced in principle; positions are protected in transit by HTTPS only, the server sees and stores everything in plain form.
+Requirement ids like `P1-4` mean item 4 in `P1.md`. Read the relevant file before starting a task.
 
 ### Out of scope
 
