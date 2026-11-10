@@ -228,7 +228,7 @@ To avoid the warning, mount a locally trusted certificate instead (e.g. made wit
 
 The e2e suite blocks tile requests (OpenStreetMap and Land Board), so it doesn't depend on the internet or load their servers.
 
-GitHub Actions ([ci.yml](.github/workflows/ci.yml)) runs lint, typecheck and unit tests on every push and pull request, and the e2e suite in a second job (MongoDB via docker compose, Chromium). On failure the Playwright report is uploaded as an artifact.
+GitHub Actions ([ci.yml](.github/workflows/ci.yml)) runs lint, typecheck and unit tests on every push, and the e2e suite in a second job (MongoDB via docker compose, Chromium). On failure the Playwright report is uploaded as an artifact.
 
 ## Roadmap
 
