@@ -1,0 +1,15 @@
+name: probe
+on: push
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: |
+          uname -r
+          for tag in 7.0 8.0 8.2 8.3 9.0; do
+            docker run -d --name m$tag mongo:$tag >/dev/null 2>&1
+          done
+          sleep 25
+          for tag in 7.0 8.0 8.2 8.3 9.0; do
+            echo "$tag: $(docker inspect -f '{{.State.Status}}' m$tag) $(docker exec m$tag mongod --version 2>/dev/null | head -1)"
+          done
