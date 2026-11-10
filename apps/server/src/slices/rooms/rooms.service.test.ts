@@ -72,7 +72,7 @@ describe('planJoin', () => {
   const room: StoredRoom = {
     code: 'ABC234',
     leaderTokenHash: hashLeaderToken(token),
-    members: [{ id: alpha, name: 'Alpha' }],
+    members: [{ id: alpha, name: 'Alpha', lastSeen: new Date() }],
   };
 
   it('issues a new member id for a first join', () => {
@@ -101,7 +101,7 @@ describe('planJoin', () => {
 });
 
 describe('buildRoomState', () => {
-  it('marks members online by connected ids and includes last positions and drawings', () => {
+  it('marks members online by connected ids and includes last positions, last seen and drawings', () => {
     const marker: MapFeature = {
       type: 'Feature',
       id: 'f',
@@ -112,8 +112,8 @@ describe('buildRoomState', () => {
       code: 'ABC234',
       leaderTokenHash: 'x',
       members: [
-        { id: 'a', name: 'Alpha', lastPosition: [30.52, 50.45] },
-        { id: 'b', name: 'Bravo' },
+        { id: 'a', name: 'Alpha', lastSeen: new Date('2026-05-01T10:00:00Z'), lastPosition: [30.52, 50.45] },
+        { id: 'b', name: 'Bravo', lastSeen: new Date('2026-05-01T09:30:00Z') },
       ],
       features: [marker],
     };
@@ -123,8 +123,8 @@ describe('buildRoomState', () => {
       memberId: 'a',
       isLeader: true,
       members: [
-        { id: 'a', name: 'Alpha', online: true, position: [30.52, 50.45] },
-        { id: 'b', name: 'Bravo', online: false, position: null },
+        { id: 'a', name: 'Alpha', online: true, position: [30.52, 50.45], lastSeen: '2026-05-01T10:00:00.000Z' },
+        { id: 'b', name: 'Bravo', online: false, position: null, lastSeen: '2026-05-01T09:30:00.000Z' },
       ],
       features: { type: 'FeatureCollection', features: [marker] },
     });

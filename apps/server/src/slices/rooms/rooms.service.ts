@@ -49,7 +49,7 @@ export async function createRoom(insert: InsertRoom, newCode = generateJoinCode)
   throw new Error(`No free join code after ${MAX_CODE_ATTEMPTS} attempts`);
 }
 
-export type StoredMember = { id: string; name: string; lastPosition?: LngLat | null };
+export type StoredMember = { id: string; name: string; lastSeen: Date; lastPosition?: LngLat | null };
 export type StoredRoom = { code: string; leaderTokenHash: string; members: StoredMember[]; features?: MapFeature[] };
 export type JoinPlan = { memberId: string; name: string; isNew: boolean; isLeader: boolean };
 
@@ -80,6 +80,7 @@ export function buildRoomState(room: StoredRoom, me: JoinPlan, onlineIds: Readon
       name: m.name,
       online: onlineIds.has(m.id),
       position: m.lastPosition ?? null,
+      lastSeen: m.lastSeen.toISOString(),
     })),
     features: { type: 'FeatureCollection', features: room.features ?? [] },
   };

@@ -1,6 +1,6 @@
 import type { Drawing, FeatureRef, MapFeature } from './drawings/drawings.ts';
 import type { PositionUpdate, PositionUpdated } from './presence/presence.ts';
-import type { Member, RoomJoin, RoomState } from './rooms/rooms.ts';
+import type { Member, MemberLeft, RoomJoin, RoomState } from './rooms/rooms.ts';
 import type { TemplateLoad } from './templates/templates.ts';
 
 /** Every socket event name. Apps import these; never hardcode the strings. */
@@ -38,7 +38,7 @@ export type ClientToServerEvents = {
 export type ServerToClientEvents = {
   [Events.roomState]: (state: RoomState) => void;
   [Events.memberJoined]: (member: Member) => void;
-  [Events.memberLeft]: (payload: { memberId: string }) => void;
+  [Events.memberLeft]: (payload: MemberLeft) => void;
   [Events.positionUpdated]: (payload: PositionUpdated) => void;
   [Events.featureAdded]: (feature: MapFeature) => void;
   [Events.featureUpdated]: (feature: MapFeature) => void;

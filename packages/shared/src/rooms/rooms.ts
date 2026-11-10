@@ -36,7 +36,12 @@ export const memberSchema = z.object({
   online: z.boolean(),
   /** Last known GPS position, so a joining client sees everyone before the next update. */
   position: lngLatSchema.nullable(),
+  /** Server time of the member's last join, position or disconnect. Shown for offline members. */
+  lastSeen: z.iso.datetime(),
 });
+
+/** `member:left`: the member's last socket disconnected. */
+export const memberLeftSchema = z.object({ memberId: memberIdSchema, lastSeen: z.iso.datetime() });
 
 /** `room:state`: full snapshot for the joining client, sent on join and every reconnect. */
 export const roomStateSchema = z.object({
@@ -50,4 +55,5 @@ export const roomStateSchema = z.object({
 export type CreateRoomResponse = z.infer<typeof createRoomResponseSchema>;
 export type RoomJoin = z.infer<typeof roomJoinSchema>;
 export type Member = z.infer<typeof memberSchema>;
+export type MemberLeft = z.infer<typeof memberLeftSchema>;
 export type RoomState = z.infer<typeof roomStateSchema>;

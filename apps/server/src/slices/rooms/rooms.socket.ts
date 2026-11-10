@@ -34,10 +34,11 @@ export function registerRoomHandlers(io: AppServer, socket: AppSocket): void {
     const session = socket.data.session;
     if (!session) return;
     try {
-      await touchMember(session.code, session.memberId, new Date());
+      const now = new Date();
+      await touchMember(session.code, session.memberId, now);
       // The same member may still be connected from another tab.
       if (!(await onlineMemberIds(io, session.code)).has(session.memberId)) {
-        io.to(session.code).emit(Events.memberLeft, { memberId: session.memberId });
+        io.to(session.code).emit(Events.memberLeft, { memberId: session.memberId, lastSeen: now.toISOString() });
       }
     } catch (err) {
       console.error('[disconnect]', err);
