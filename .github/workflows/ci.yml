@@ -35,7 +35,9 @@ jobs:
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
-      # Playwright's webServer starts MongoDB via docker compose, then the server and the web dev server.
+      - name: Start MongoDB
+        run: docker compose up -d --wait mongo || { docker compose logs mongo; exit 1; }
+      # Playwright's webServer then starts the server and the web dev server (MongoDB is already up).
       - run: pnpm test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()
