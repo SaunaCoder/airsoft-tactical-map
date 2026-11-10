@@ -1,5 +1,7 @@
 # Airsoft Tactical Map
 
+[![CI](https://github.com/SaunaCoder/airsoft-tactical-map/actions/workflows/ci.yml/badge.svg)](https://github.com/SaunaCoder/airsoft-tactical-map/actions/workflows/ci.yml)
+
 Real-time tactical map for airsoft teams. The leader creates a room, players join by code or QR, everyone sees each other's live GPS positions, and the leader draws the game plan on the map. Zones and points of interest can be prepared as templates before game day.
 
 SvelteKit, Leaflet, Node.js, Express, Socket.IO, MongoDB, Zod, Docker, nginx.
@@ -226,6 +228,8 @@ To avoid the warning, mount a locally trusted certificate instead (e.g. made wit
 
 The e2e suite blocks tile requests (OpenStreetMap and Land Board), so it doesn't depend on the internet or load their servers.
 
+GitHub Actions ([ci.yml](.github/workflows/ci.yml)) runs lint, typecheck and unit tests on every push, and the e2e suite in a second job (MongoDB via docker compose, Chromium). On failure the Playwright report is uploaded as an artifact.
+
 ## Roadmap
 
-Next up (P1): GPS smoothing and movement-based sending, a member list with "last seen", undo and clear, automatic room expiry, CI on GitHub Actions, and a GraphQL API for templates (the REST routes already sit on a transport-agnostic service). Later: Prometheus metrics, MapLibre GL, offline map tiles, template export / import as GeoJSON, and teams inside a room.
+Next up (P1): GPS smoothing and movement-based sending, a member list with "last seen", undo and clear, automatic room expiry, and a GraphQL API for templates (the REST routes already sit on a transport-agnostic service). Later: Prometheus metrics, MapLibre GL, offline map tiles, template export / import as GeoJSON, and teams inside a room.

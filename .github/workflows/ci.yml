@@ -1,0 +1,56 @@
+name: CI
+
+# Same-repo PR branches are covered by their pushes.
+on: push
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, typecheck, unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          # Its auto pnpm cache needs pnpm before corepack enables it.
+          package-manager-cache: false
+      # pnpm version comes from `packageManager` in package.json.
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+
+  e2e:
+    name: End-to-end tests
+    runs-on: ubuntu-latest
+    env:
+      # mongo:8 (8.0) and 8.3 refuse to start on the runner's Linux 7.0 kernel (SERVER-121912);
+      # 8.2 is the closest release to production's 8.0 that does. Drop once mongo:8 starts again.
+      MONGO_TAG: '8.2'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          # Its auto pnpm cache needs pnpm before corepack enables it.
+          package-manager-cache: false
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Start MongoDB
+        run: docker compose up -d --wait mongo || { docker compose logs mongo; exit 1; }
+      # Playwright's webServer then starts the server and the web dev server (MongoDB is already up).
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@v5
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
